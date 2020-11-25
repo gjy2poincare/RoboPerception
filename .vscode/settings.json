@@ -1,0 +1,5 @@
+{
+    "markdown.extension.preview.autoShowPreviewToSide": true,
+    "terminal.integrated.cursorStyle": "underline",
+    "cmake.configureOnOpen": false
+}
