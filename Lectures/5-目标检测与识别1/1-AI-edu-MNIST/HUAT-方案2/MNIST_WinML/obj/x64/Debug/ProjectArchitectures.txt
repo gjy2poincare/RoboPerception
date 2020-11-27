@@ -1,0 +1,1 @@
+C:\Users\10050\Documents\GitHub\RoboPerception\Lectures\5-目标检测与识别1\1-AI-edu-MNIST\HUAT-方案2\MNIST_WinML\MNIST_Demo.csproj;x64
