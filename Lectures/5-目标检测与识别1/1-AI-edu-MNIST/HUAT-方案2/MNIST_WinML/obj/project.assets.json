@@ -7173,28 +7173,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\roryp\\.nuget\\packages\\": {},
-    "C:\\Microsoft\\Xamarin\\NuGet\\": {},
+    "C:\\Users\\user\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Works\\MicrosoftAI\\MNISTuwp\\MNIST_Demo.csproj",
+      "projectUniqueName": "E:\\github\\RoboPerception\\Lectures\\5-目标检测与识别1\\1-AI-edu-MNIST\\HUAT-方案2\\MNIST_WinML\\MNIST_Demo.csproj",
       "projectName": "MNIST_Demo",
-      "projectPath": "D:\\Works\\MicrosoftAI\\MNISTuwp\\MNIST_Demo.csproj",
-      "packagesPath": "C:\\Users\\roryp\\.nuget\\packages\\",
-      "outputPath": "D:\\Works\\MicrosoftAI\\MNISTuwp\\obj\\",
+      "projectPath": "E:\\github\\RoboPerception\\Lectures\\5-目标检测与识别1\\1-AI-edu-MNIST\\HUAT-方案2\\MNIST_WinML\\MNIST_Demo.csproj",
+      "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+      "outputPath": "E:\\github\\RoboPerception\\Lectures\\5-目标检测与识别1\\1-AI-edu-MNIST\\HUAT-方案2\\MNIST_WinML\\obj\\",
       "projectStyle": "PackageReference",
       "skipContentFileWrite": true,
       "fallbackFolders": [
-        "C:\\Microsoft\\Xamarin\\NuGet\\",
         "C:\\Program Files (x86)\\Microsoft SDKs\\UWPNuGetPackages\\"
       ],
       "configFilePaths": [
-        "C:\\Users\\roryp\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "uap10.0.17763"

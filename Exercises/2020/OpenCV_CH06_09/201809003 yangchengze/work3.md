@@ -1,0 +1,4052 @@
+# 第三次作业 
+## 第六章 图像处理
+### 实验部分
+#### 1.boxFilter函数用法示例
+```
+
+
+#include "opencv2/core/core.hpp" 
+#include "opencv2/highgui/highgui.hpp" 
+#include "opencv2/imgproc/imgproc.hpp" 
+using namespace cv; 
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//	描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{ 
+	// 载入原图
+	Mat image=imread("1.jpg"); 
+
+	//创建窗口
+	namedWindow( "方框滤波【原图】" ); 
+	namedWindow( "方框滤波【效果图】"); 
+
+	//显示原图
+	imshow( "方框滤波【原图】", image ); 
+
+	//进行方框滤波操作
+	Mat out; 
+	boxFilter( image, out, -1,Size(5, 5)); 
+
+	//显示效果图
+	imshow( "方框滤波【效果图】" ,out ); 
+
+	waitKey( 0 );     
+} 
+```
+![yang](./photo/1.png)
+![yang](./photo/2.png)
+
+#### 2.blur函数用法示例
+```
+
+
+
+
+//---------------------------------【头文件、命名空间包含部分】-------------------------------
+//		描述：包含程序所使用的头文件和命名空间
+//-----------------------------------------------------------------------------------------------
+#include "opencv2/highgui/highgui.hpp" 
+#include "opencv2/imgproc/imgproc.hpp" 
+using namespace cv; 
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{ 
+	//【1】载入原始图
+	Mat srcImage=imread("1.jpg"); 
+
+	//【2】显示原始图
+	imshow( "均值滤波【原图】", srcImage ); 
+
+	//【3】进行均值滤波操作
+	Mat dstImage; 
+	blur( srcImage, dstImage, Size(7, 7)); 
+
+	//【4】显示效果图
+	imshow( "均值滤波【效果图】" ,dstImage ); 
+
+	waitKey( 0 );     
+} 
+```
+![yang](./photo/3.png)
+![yang](./photo/4.png)
+
+#### 3.GussianBlur函数用法示例
+```
+
+
+//---------------------------------【头文件、命名空间包含部分】-------------------------------
+//		描述：包含程序所使用的头文件和命名空间
+//-----------------------------------------------------------------------------------------------
+#include "opencv2/highgui/highgui.hpp" 
+#include "opencv2/imgproc/imgproc.hpp" 
+using namespace cv; 
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{ 
+	//【1】载入原始图
+	Mat srcImage=imread("1.jpg"); 
+
+	//【2】显示原始图
+	imshow( "均值滤波【原图】", srcImage ); 
+
+	//【3】进行均值滤波操作
+	Mat dstImage; 
+	blur( srcImage, dstImage, Size(7, 7)); 
+
+	//【4】显示效果图
+	imshow( "均值滤波【效果图】" ,dstImage ); 
+
+	waitKey( 0 );     
+} 
+```
+![yang](./photo/5.png)
+![yang](./photo/6.png)
+
+#### 4.线性图像滤波综合示例
+```
+
+
+
+//---------------------------------【头文件、命名空间包含部分】-------------------------------
+//		描述：包含程序所使用的头文件和命名空间
+//------------------------------------------------------------------------------------------------
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
+
+using namespace std;
+using namespace cv;
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//	描述：全局变量声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage,g_dstImage1,g_dstImage2,g_dstImage3;//存储图片的Mat类型
+int g_nBoxFilterValue=3;  //方框滤波参数值
+int g_nMeanBlurValue=3;  //均值滤波参数值
+int g_nGaussianBlurValue=3;  //高斯滤波参数值
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//	描述：全局函数声明
+//-----------------------------------------------------------------------------------------------
+//四个轨迹条的回调函数
+static void on_BoxFilter(int, void *);		//均值滤波
+static void on_MeanBlur(int, void *);		//均值滤波
+static void on_GaussianBlur(int, void *);			//高斯滤波
+void ShowHelpText();
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//	描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main(   )
+{
+	//改变console字体颜色
+	system("color 5F");  
+
+	//输出帮助文字
+	ShowHelpText();
+
+	// 载入原图
+	g_srcImage = imread( "1.jpg", 1 );
+	if( !g_srcImage.data ) { printf("Oh，no，读取srcImage错误~！ \n"); return false; }
+
+	//克隆原图到三个Mat类型中
+	g_dstImage1 = g_srcImage.clone( );
+	g_dstImage2 = g_srcImage.clone( );
+	g_dstImage3 = g_srcImage.clone( );
+
+	//显示原图
+	namedWindow("【<0>原图窗口】", 1);
+	imshow("【<0>原图窗口】",g_srcImage);
+
+
+	//=================【<1>方框滤波】==================
+	//创建窗口
+	namedWindow("【<1>方框滤波】", 1);
+	//创建轨迹条
+	createTrackbar("内核值：", "【<1>方框滤波】",&g_nBoxFilterValue, 40,on_BoxFilter );
+	on_MeanBlur(g_nBoxFilterValue,0);
+	imshow("【<1>方框滤波】", g_dstImage1);
+	//================================================
+
+	//=================【<2>均值滤波】==================
+	//创建窗口
+	namedWindow("【<2>均值滤波】", 1);
+	//创建轨迹条
+	createTrackbar("内核值：", "【<2>均值滤波】",&g_nMeanBlurValue, 40,on_MeanBlur );
+	on_MeanBlur(g_nMeanBlurValue,0);
+	//================================================
+
+	//=================【<3>高斯滤波】=====================
+	//创建窗口
+	namedWindow("【<3>高斯滤波】", 1);
+	//创建轨迹条
+	createTrackbar("内核值：", "【<3>高斯滤波】",&g_nGaussianBlurValue, 40,on_GaussianBlur );
+	on_GaussianBlur(g_nGaussianBlurValue,0);
+	//================================================
+
+
+	//输出一些帮助信息
+	cout<<endl<<"\t运行成功，请调整滚动条观察图像效果~\n\n"
+		<<"\t按下“q”键时，程序退出。\n";
+
+	//按下“q”键时，程序退出
+	while(char(waitKey(1)) != 'q') {}
+
+	return 0;
+}
+
+
+//-----------------------------【on_BoxFilter( )函数】------------------------------------
+//	描述：方框滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_BoxFilter(int, void *)
+{
+	//方框滤波操作
+	boxFilter( g_srcImage, g_dstImage1, -1,Size( g_nBoxFilterValue+1, g_nBoxFilterValue+1));
+	//显示窗口
+	imshow("【<1>方框滤波】", g_dstImage1);
+}
+
+
+//-----------------------------【on_MeanBlur( )函数】------------------------------------
+//	描述：均值滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_MeanBlur(int, void *)
+{
+	//均值滤波操作
+	blur( g_srcImage, g_dstImage2, Size( g_nMeanBlurValue+1, g_nMeanBlurValue+1), Point(-1,-1));
+	//显示窗口
+	imshow("【<2>均值滤波】", g_dstImage2);
+}
+
+
+//-----------------------------【ContrastAndBright( )函数】------------------------------------
+//	描述：高斯滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_GaussianBlur(int, void *)
+{
+	//高斯滤波操作
+	GaussianBlur( g_srcImage, g_dstImage3, Size( g_nGaussianBlurValue*2+1, g_nGaussianBlurValue*2+1 ), 0, 0);
+	//显示窗口
+	imshow("【<3>高斯滤波】", g_dstImage3);
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第34个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+
+```
+![yang](./photo/7.png)
+![yang](./photo/8.png)
+
+#### 5.Medianblur函数用法示例
+```
+
+
+
+
+#include "opencv2/core/core.hpp" 
+#include "opencv2/highgui/highgui.hpp" 
+#include "opencv2/imgproc/imgproc.hpp" 
+
+//-----------------------------------【命名空间声明部分】---------------------------------------
+//	描述：包含程序所使用的命名空间
+//-----------------------------------------------------------------------------------------------  
+using namespace cv; 
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//	描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{ 
+	// 载入原图
+	Mat image=imread("1.jpg"); 
+
+	//创建窗口
+	namedWindow( "中值滤波【原图】" ); 
+	namedWindow( "中值滤波【效果图】"); 
+
+	//显示原图
+	imshow( "中值滤波【原图】", image ); 
+
+	//进行中值滤波操作
+	Mat out; 
+	medianBlur ( image, out, 7);
+
+	//显示效果图
+	imshow( "中值滤波【效果图】" ,out ); 
+
+	waitKey( 0 );     
+} 
+```
+![yang](./photo/9.png)
+![yang](./photo/10.png)
+
+#### 6.bilateralfilter
+```
+
+#include "opencv2/core/core.hpp" 
+#include "opencv2/highgui/highgui.hpp" 
+#include "opencv2/imgproc/imgproc.hpp" 
+
+//-----------------------------------【命名空间声明部分】---------------------------------------
+//	描述：包含程序所使用的命名空间
+//-----------------------------------------------------------------------------------------------  
+using namespace cv; 
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//	描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{ 
+	// 载入原图
+	Mat image=imread("1.jpg"); 
+
+	//创建窗口
+	namedWindow( "双边滤波【原图】" ); 
+	namedWindow( "双边滤波【效果图】"); 
+
+	//显示原图
+	imshow( "双边滤波【原图】", image ); 
+
+	//进行双边滤波操作
+	Mat out; 
+	bilateralFilter ( image, out, 25, 25*2, 25/2 ); 
+
+	//显示效果图
+	imshow( "双边滤波【效果图】" ,out ); 
+
+	waitKey( 0 );     
+} 
+```
+![yang](./photo/11.png)
+![yang](./photo/12.png)
+
+#### 7.图像滤波综合示例
+```
+
+
+
+//-----------------------------------【头文件包含部分】---------------------------------------
+//		描述：包含程序所依赖的头文件
+//---------------------------------------------------------------------------------------------- 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
+
+//-----------------------------------【命名空间声明部分】---------------------------------------
+//		描述：包含程序所使用的命名空间
+//-----------------------------------------------------------------------------------------------  
+using namespace std;
+using namespace cv;
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//		描述：全局变量声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage,g_dstImage1,g_dstImage2,g_dstImage3,g_dstImage4,g_dstImage5;
+int g_nBoxFilterValue=6;  //方框滤波内核值
+int g_nMeanBlurValue=10;  //均值滤波内核值
+int g_nGaussianBlurValue=6;  //高斯滤波内核值
+int g_nMedianBlurValue=10;  //中值滤波参数值
+int g_nBilateralFilterValue=10;  //双边滤波参数值
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数声明
+//-----------------------------------------------------------------------------------------------
+//轨迹条回调函数
+static void on_BoxFilter(int, void *);		//方框滤波
+static void on_MeanBlur(int, void *);		//均值块滤波器
+static void on_GaussianBlur(int, void *);			//高斯滤波器
+static void on_MedianBlur(int, void *);			//中值滤波器
+static void on_BilateralFilter(int, void *);			//双边滤波器
+void ShowHelpText();
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main(   )
+{
+	system("color 4F");  
+
+	ShowHelpText();	
+
+	// 载入原图
+	g_srcImage = imread( "1.jpg", 1 );
+	if( !g_srcImage.data ) { printf("读取srcImage错误~！ \n"); return false; }
+
+	//克隆原图到四个Mat类型中
+	g_dstImage1 = g_srcImage.clone( );
+	g_dstImage2 = g_srcImage.clone( );
+	g_dstImage3 = g_srcImage.clone( );
+	g_dstImage4 = g_srcImage.clone( );
+	g_dstImage5 = g_srcImage.clone( );
+
+	//显示原图
+	namedWindow("【<0>原图窗口】", 1);
+	imshow("【<0>原图窗口】",g_srcImage);
+
+
+	//=================【<1>方框滤波】=========================
+	//创建窗口
+	namedWindow("【<1>方框滤波】", 1);
+	//创建轨迹条
+	createTrackbar("内核值：", "【<1>方框滤波】",&g_nBoxFilterValue, 50,on_BoxFilter );
+	on_MeanBlur(g_nBoxFilterValue,0);
+	imshow("【<1>方框滤波】", g_dstImage1);
+	//=====================================================
+
+
+	//=================【<2>均值滤波】==========================
+	//创建窗口
+	namedWindow("【<2>均值滤波】", 1);
+	//创建轨迹条
+	createTrackbar("内核值：", "【<2>均值滤波】",&g_nMeanBlurValue, 50,on_MeanBlur );
+	on_MeanBlur(g_nMeanBlurValue,0);
+	//======================================================
+
+
+	//=================【<3>高斯滤波】===========================
+	//创建窗口
+	namedWindow("【<3>高斯滤波】", 1);
+	//创建轨迹条
+	createTrackbar("内核值：", "【<3>高斯滤波】",&g_nGaussianBlurValue, 50,on_GaussianBlur );
+	on_GaussianBlur(g_nGaussianBlurValue,0);
+	//=======================================================
+
+
+	//=================【<4>中值滤波】===========================
+	//创建窗口
+	namedWindow("【<4>中值滤波】", 1);
+	//创建轨迹条
+	createTrackbar("参数值：", "【<4>中值滤波】",&g_nMedianBlurValue, 50,on_MedianBlur );
+	on_MedianBlur(g_nMedianBlurValue,0);
+	//=======================================================
+
+
+	//=================【<5>双边滤波】===========================
+	//创建窗口
+	namedWindow("【<5>双边滤波】", 1);
+	//创建轨迹条
+	createTrackbar("参数值：", "【<5>双边滤波】",&g_nBilateralFilterValue, 50,on_BilateralFilter);
+	on_BilateralFilter(g_nBilateralFilterValue,0);
+	//=======================================================
+
+
+	//输出一些帮助信息
+	cout<<endl<<"\t运行成功，请调整滚动条观察图像效果~\n\n"
+		<<"\t按下“q”键时，程序退出。\n";
+	while(char(waitKey(1)) != 'q') {}
+
+	return 0;
+}
+
+//-----------------------------【on_BoxFilter( )函数】------------------------------------
+//		描述：方框滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_BoxFilter(int, void *)
+{
+	//方框滤波操作
+	boxFilter( g_srcImage, g_dstImage1, -1,Size( g_nBoxFilterValue+1, g_nBoxFilterValue+1));
+	//显示窗口
+	imshow("【<1>方框滤波】", g_dstImage1);
+}
+
+//-----------------------------【on_MeanBlur( )函数】------------------------------------
+//		描述：均值滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_MeanBlur(int, void *)
+{
+	blur( g_srcImage, g_dstImage2, Size( g_nMeanBlurValue+1, g_nMeanBlurValue+1), Point(-1,-1));
+	imshow("【<2>均值滤波】", g_dstImage2);
+
+}
+
+//-----------------------------【on_GaussianBlur( )函数】------------------------------------
+//		描述：高斯滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_GaussianBlur(int, void *)
+{
+	GaussianBlur( g_srcImage, g_dstImage3, Size( g_nGaussianBlurValue*2+1, g_nGaussianBlurValue*2+1 ), 0, 0);
+	imshow("【<3>高斯滤波】", g_dstImage3);
+}
+
+
+//-----------------------------【on_MedianBlur( )函数】------------------------------------
+//		描述：中值滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_MedianBlur(int, void *)
+{
+	medianBlur ( g_srcImage, g_dstImage4, g_nMedianBlurValue*2+1 );
+	imshow("【<4>中值滤波】", g_dstImage4);
+}
+
+
+//-----------------------------【on_BilateralFilter( )函数】------------------------------------
+//		描述：双边滤波操作的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_BilateralFilter(int, void *)
+{
+	bilateralFilter ( g_srcImage, g_dstImage5, g_nBilateralFilterValue, g_nBilateralFilterValue*2, g_nBilateralFilterValue/2 );
+	imshow("【<5>双边滤波】", g_dstImage5);
+}
+
+//-----------------------------------【ShowHelpText( )函数】-----------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第37个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+
+
+
+```
+![yang](./photo/13.png)
+![yang](./photo/14.png)
+
+#### 8.dilate函数用法示例
+```
+
+//--------------------------------------【程序说明】-------------------------------------------
+//		程序说明：《OpenCV3编程入门》OpenCV3版书本配套示例程序38
+//		程序描述：图像膨胀dilate函数用法示例
+//		开发测试所用操作系统： Windows 7 64bit
+//		开发测试所用IDE版本：Visual Studio 2010
+//		开发测试所用OpenCV版本：	3.0 beta
+//		2014年11月 Created by @浅墨_毛星云
+//		2014年12月 Revised by @浅墨_毛星云
+//------------------------------------------------------------------------------------------------
+
+//-----------------------------------【头文件包含部分】---------------------------------------
+//	描述：包含程序所依赖的头文件
+//---------------------------------------------------------------------------------------------- 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
+
+//-----------------------------------【命名空间声明部分】---------------------------------------
+//	描述：包含程序所使用的命名空间
+//-----------------------------------------------------------------------------------------------  
+using namespace std;
+using namespace cv;
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//	描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main(   )
+{
+
+	//载入原图  
+	Mat image = imread("1.jpg");
+
+	//创建窗口  
+	namedWindow("【原图】膨胀操作");
+	namedWindow("【效果图】膨胀操作");
+
+	//显示原图
+	imshow("【原图】膨胀操作", image);
+
+	//进行膨胀操作 
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));
+	Mat out;
+	dilate(image, out, element);
+
+	//显示效果图 
+	imshow("【效果图】膨胀操作", out);
+
+	waitKey(0); 
+
+	return 0;
+}
+```
+
+![yang](./photo/15.png)
+![yang](./photo/16.png)
+
+#### 9.erode函数用法示例
+```
+
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//	描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main(   )
+{
+	//载入原图  
+	Mat srcImage = imread("1.jpg");
+	//显示原图
+	imshow("【原图】腐蚀操作", srcImage);
+	//进行腐蚀操作 
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));
+	Mat dstImage;
+	erode(srcImage, dstImage, element);
+	//显示效果图 
+	imshow("【效果图】腐蚀操作", dstImage);
+	waitKey(0); 
+
+	return 0;
+}
+
+```
+![yang](./photo/17.png)
+![yang](./photo/18.png)
+
+#### 10图像腐蚀与膨胀综合示例
+```
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <iostream>
+using namespace std;
+using namespace cv;
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//		描述：全局变量声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage, g_dstImage;//原始图和效果图
+int g_nTrackbarNumer = 0;//0表示腐蚀erode, 1表示膨胀dilate
+int g_nStructElementSize = 3; //结构元素(内核矩阵)的尺寸
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数声明
+//-----------------------------------------------------------------------------------------------
+void Process();//膨胀和腐蚀的处理函数
+void on_TrackbarNumChange(int, void *);//回调函数
+void on_ElementSizeChange(int, void *);//回调函数
+void ShowHelpText();
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//改变console字体颜色
+	system("color 2F");  
+
+	//载入原图
+	g_srcImage = imread("1.jpg");
+	if( !g_srcImage.data ) { printf("读取srcImage错误~！ \n"); return false; }
+
+	ShowHelpText();
+
+	//显示原始图
+	namedWindow("【原始图】");
+	imshow("【原始图】", g_srcImage);
+
+	//进行初次腐蚀操作并显示效果图
+	namedWindow("【效果图】");
+	//获取自定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(2*g_nStructElementSize+1, 2*g_nStructElementSize+1),Point( g_nStructElementSize, g_nStructElementSize ));
+	erode(g_srcImage, g_dstImage, element);
+	imshow("【效果图】", g_dstImage);
+
+	//创建轨迹条
+	createTrackbar("腐蚀/膨胀", "【效果图】", &g_nTrackbarNumer, 1, on_TrackbarNumChange);
+	createTrackbar("内核尺寸", "【效果图】", &g_nStructElementSize, 21, on_ElementSizeChange);
+
+	//输出一些帮助信息
+	cout<<endl<<"\t运行成功，请调整滚动条观察图像效果~\n\n"
+		<<"\t按下“q”键时，程序退出。\n";
+
+	//轮询获取按键信息，若下q键，程序退出
+	while(char(waitKey(1)) != 'q') {}
+
+	return 0;
+}
+
+//-----------------------------【Process( )函数】------------------------------------
+//		描述：进行自定义的腐蚀和膨胀操作
+//-----------------------------------------------------------------------------------------
+void Process() 
+{
+	//获取自定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(2*g_nStructElementSize+1, 2*g_nStructElementSize+1),Point( g_nStructElementSize, g_nStructElementSize ));
+
+	//进行腐蚀或膨胀操作
+	if(g_nTrackbarNumer == 0) {    
+		erode(g_srcImage, g_dstImage, element);
+	}
+	else {
+		dilate(g_srcImage, g_dstImage, element);
+	}
+
+	//显示效果图
+	imshow("【效果图】", g_dstImage);
+}
+
+
+//-----------------------------【on_TrackbarNumChange( )函数】------------------------------------
+//		描述：腐蚀和膨胀之间切换开关的回调函数
+//-----------------------------------------------------------------------------------------------------
+void on_TrackbarNumChange(int, void *) 
+{
+	//腐蚀和膨胀之间效果已经切换，回调函数体内需调用一次Process函数，使改变后的效果立即生效并显示出来
+	Process();
+}
+
+
+//-----------------------------【on_ElementSizeChange( )函数】-------------------------------------
+//		描述：腐蚀和膨胀操作内核改变时的回调函数
+//-----------------------------------------------------------------------------------------------------
+void on_ElementSizeChange(int, void *)
+{
+	//内核尺寸已改变，回调函数体内需调用一次Process函数，使改变后的效果立即生效并显示出来
+	Process();
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】-----------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第40个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+
+```
+![yang](./photo/19.png)
+![yang](./photo/20.png)
+
+#### 11.用morphologyex进行图像膨胀
+```
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat image = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	//创建窗口   
+	namedWindow("【原始图】膨胀");  
+	namedWindow("【效果图】膨胀");  
+	//显示原始图  
+	imshow("【原始图】膨胀", image);  
+	//定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));  
+	//进行形态学操作
+	morphologyEx(image, image, MORPH_DILATE, element);
+	//显示效果图  
+	imshow("【效果图】膨胀", image);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+![yang](./photo/21.png)
+![yang](./photo/22.png)
+
+#### 12.用morphologyex进行图像腐蚀
+```
+
+
+
+//-----------------------------------【头文件包含部分】---------------------------------------
+//		描述：包含程序所依赖的头文件
+//---------------------------------------------------------------------------------------------- 
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
+//-----------------------------------【命名空间声明部分】---------------------------------------
+//		描述：包含程序所使用的命名空间
+//----------------------------------------------------------------------------------------------- 
+using namespace cv;
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat image = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	//创建窗口   
+	namedWindow("【原始图】腐蚀");  
+	namedWindow("【效果图】腐蚀");  
+	//显示原始图  
+	imshow("【原始图】腐蚀", image);  
+	//定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));  
+	//进行形态学操作
+	morphologyEx(image, image, MORPH_ERODE, element);
+	//显示效果图  
+	imshow("【效果图】腐蚀", image);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+
+![yang](./photo/23.png)
+![yang](./photo/24.png)
+
+#### 13.用morphologyex进行图像开运算
+```
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat image = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	//创建窗口   
+	namedWindow("【原始图】开运算");  
+	namedWindow("【效果图】开运算");  
+	//显示原始图  
+	imshow("【原始图】开运算", image);  
+	//定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));  
+	//进行形态学操作
+	morphologyEx(image, image, MORPH_OPEN, element);
+	//显示效果图  
+	imshow("【效果图】开运算", image);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+
+![yang](./photo/25.png)
+![yang](./photo/26.png)
+#### 14.用morphologyex进行图像闭运算
+```
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+//-----------------------------------【main( )函数】------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat image = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	//创建窗口   
+	namedWindow("【原始图】闭运算");  
+	namedWindow("【效果图】闭运算");  
+	//显示原始图  
+	imshow("【原始图】闭运算", image);  
+	//定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));  
+	//进行形态学操作
+	morphologyEx(image, image, MORPH_CLOSE, element);
+	//显示效果图  
+	imshow("【效果图】闭运算", image);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+![yang](./photo/27.png)
+![yang](./photo/28.png)
+
+#### 15.用morphologyex进行形态学梯度运算
+```
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+//-----------------------------------【main( )函数】------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat image = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	//创建窗口   
+	namedWindow("【原始图】形态学梯度");  
+	namedWindow("【效果图】形态学梯度");  
+	//显示原始图  
+	imshow("【原始图】形态学梯度", image);  
+	//定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));  
+	//进行形态学操作
+	morphologyEx(image, image, MORPH_GRADIENT, element);
+	//显示效果图  
+	imshow("【效果图】形态学梯度", image);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+![yang](./photo/29.png)
+![yang](./photo/30.png)
+
+#### 16.用morphologyex进行形态学顶帽运算
+```
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+
+//-----------------------------------【main( )函数】------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat image = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	//创建窗口   
+	namedWindow("【原始图】顶帽运算");  
+	namedWindow("【效果图】顶帽运算");  
+	//显示原始图  
+	imshow("【原始图】顶帽运算", image);  
+	//定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));  
+	//进行形态学操作
+	morphologyEx(image, image, MORPH_TOPHAT, element);
+	//显示效果图  
+	imshow("【效果图】顶帽运算", image);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+![yang](./photo/31.png)
+![yang](./photo/32.png)
+
+#### 17.用morphologyex进行形态学黑帽运算
+```
+
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat image = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	//创建窗口   
+	namedWindow("【原始图】黑帽运算");  
+	namedWindow("【效果图】黑帽运算");  
+	//显示原始图  
+	imshow("【原始图】黑帽运算", image);  
+	//定义核
+	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));  
+	//进行形态学操作
+	morphologyEx(image, image, MORPH_BLACKHAT, element);
+	//显示效果图  
+	imshow("【效果图】黑帽运算", image);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+![yang](./photo/33.png)
+![yang](./photo/34.png)
+![yang](./photo/22.png)
+#### 18.形态学图像处理综合示例
+```
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace std;
+using namespace cv;
+
+
+//-----------------------------------【全局变量声明部分】-----------------------------------
+//		描述：全局变量声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage, g_dstImage;//原始图和效果图
+int g_nElementShape = MORPH_RECT;//元素结构的形状
+
+//变量接收的TrackBar位置参数
+int g_nMaxIterationNum = 10;
+int g_nOpenCloseNum = 0;
+int g_nErodeDilateNum = 0;
+int g_nTopBlackHatNum = 0;
+
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数声明
+//-----------------------------------------------------------------------------------------------
+static void on_OpenClose(int, void*);//回调函数
+static void on_ErodeDilate(int, void*);//回调函数
+static void on_TopBlackHat(int, void*);//回调函数
+static void ShowHelpText();
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//改变console字体颜色
+	system("color 2F");  
+
+	ShowHelpText();
+
+	//载入原图
+	g_srcImage = imread("1.jpg");
+	if( !g_srcImage.data ) { printf("Oh，no，读取srcImage错误~！ \n"); return false; }
+
+	//显示原始图
+	namedWindow("【原始图】");
+	imshow("【原始图】", g_srcImage);
+
+	//创建三个窗口
+	namedWindow("【开运算/闭运算】",1);
+	namedWindow("【腐蚀/膨胀】",1);
+	namedWindow("【顶帽/黑帽】",1);
+
+	//参数赋值
+	g_nOpenCloseNum=9;
+	g_nErodeDilateNum=9;
+	g_nTopBlackHatNum=2;
+
+	//分别为三个窗口创建滚动条
+	createTrackbar("迭代值", "【开运算/闭运算】",&g_nOpenCloseNum,g_nMaxIterationNum*2+1,on_OpenClose);
+	createTrackbar("迭代值", "【腐蚀/膨胀】",&g_nErodeDilateNum,g_nMaxIterationNum*2+1,on_ErodeDilate);
+	createTrackbar("迭代值", "【顶帽/黑帽】",&g_nTopBlackHatNum,g_nMaxIterationNum*2+1,on_TopBlackHat);
+
+	//轮询获取按键信息
+	while(1)
+	{
+		int c;
+
+		//执行回调函数
+		on_OpenClose(g_nOpenCloseNum, 0);
+		on_ErodeDilate(g_nErodeDilateNum, 0);
+		on_TopBlackHat(g_nTopBlackHatNum,0);
+
+		//获取按键
+		c = waitKey(0);
+
+		//按下键盘按键Q或者ESC，程序退出
+		if( (char)c == 'q'||(char)c == 27 )
+			break;
+		//按下键盘按键1，使用椭圆(Elliptic)结构元素结构元素MORPH_ELLIPSE
+		if( (char)c == 49 )//键盘按键1的ASII码为49
+			g_nElementShape = MORPH_ELLIPSE;
+		//按下键盘按键2，使用矩形(Rectangle)结构元素MORPH_RECT
+		else if( (char)c == 50 )//键盘按键2的ASII码为50
+			g_nElementShape = MORPH_RECT;
+		//按下键盘按键3，使用十字形(Cross-shaped)结构元素MORPH_CROSS
+		else if( (char)c == 51 )//键盘按键3的ASII码为51
+			g_nElementShape = MORPH_CROSS;
+		//按下键盘按键space，在矩形、椭圆、十字形结构元素中循环
+		else if( (char)c == ' ' )
+			g_nElementShape = (g_nElementShape + 1) % 3;
+	}
+
+	return 0;
+}
+
+
+//-----------------------------------【on_OpenClose( )函数】----------------------------------
+//		描述：【开运算/闭运算】窗口的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_OpenClose(int, void*)
+{
+	//偏移量的定义
+	int offset = g_nOpenCloseNum - g_nMaxIterationNum;//偏移量
+	int Absolute_offset = offset > 0 ? offset : -offset;//偏移量绝对值
+	//自定义核
+	Mat element = getStructuringElement(g_nElementShape, Size(Absolute_offset*2+1, Absolute_offset*2+1), Point(Absolute_offset, Absolute_offset) );
+	//进行操作
+	if( offset < 0 )
+		//此句代码的OpenCV2版为：
+		//morphologyEx(g_srcImage, g_dstImage, CV_MOP_OPEN, element);
+		//此句代码的OpenCV3版为:
+		morphologyEx(g_srcImage, g_dstImage, MORPH_OPEN, element);
+	else
+		//此句代码的OpenCV2版为：
+		//morphologyEx(g_srcImage, g_dstImage, CV_MOP_CLOSE, element);
+		//此句代码的OpenCV3版为:
+		morphologyEx(g_srcImage, g_dstImage, MORPH_CLOSE, element);
+		
+
+
+	//显示图像
+	imshow("【开运算/闭运算】",g_dstImage);
+}
+
+
+//-----------------------------------【on_ErodeDilate( )函数】----------------------------------
+//		描述：【腐蚀/膨胀】窗口的回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_ErodeDilate(int, void*)
+{
+	//偏移量的定义
+	int offset = g_nErodeDilateNum - g_nMaxIterationNum;	//偏移量
+	int Absolute_offset = offset > 0 ? offset : -offset;//偏移量绝对值
+	//自定义核
+	Mat element = getStructuringElement(g_nElementShape, Size(Absolute_offset*2+1, Absolute_offset*2+1), Point(Absolute_offset, Absolute_offset) );
+	//进行操作
+	if( offset < 0 )
+		erode(g_srcImage, g_dstImage, element);
+	else
+		dilate(g_srcImage, g_dstImage, element);
+	//显示图像
+	imshow("【腐蚀/膨胀】",g_dstImage);
+}
+
+
+//-----------------------------------【on_TopBlackHat( )函数】--------------------------------
+//		描述：【顶帽运算/黑帽运算】窗口的回调函数
+//----------------------------------------------------------------------------------------------
+static void on_TopBlackHat(int, void*)
+{
+	//偏移量的定义
+	int offset = g_nTopBlackHatNum - g_nMaxIterationNum;//偏移量
+	int Absolute_offset = offset > 0 ? offset : -offset;//偏移量绝对值
+	//自定义核
+	Mat element = getStructuringElement(g_nElementShape, Size(Absolute_offset*2+1, Absolute_offset*2+1), Point(Absolute_offset, Absolute_offset) );
+	//进行操作
+	if( offset < 0 )
+		morphologyEx(g_srcImage, g_dstImage, MORPH_TOPHAT , element);
+	else
+		morphologyEx(g_srcImage, g_dstImage, MORPH_BLACKHAT, element);
+	//显示图像
+	imshow("【顶帽/黑帽】",g_dstImage);
+}
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------
+//		描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+static void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第48个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息
+	printf("\n\t请调整滚动条观察图像效果\n\n");
+	printf( "\n\t按键操作说明: \n\n"
+		"\t\t键盘按键【ESC】或者【Q】- 退出程序\n"
+		"\t\t键盘按键【1】- 使用椭圆(Elliptic)结构元素\n"
+		"\t\t键盘按键【2】- 使用矩形(Rectangle )结构元素\n"
+		"\t\t键盘按键【3】- 使用十字型(Cross-shaped)结构元素\n"
+		"\t\t键盘按键【空格SPACE】- 在矩形、椭圆、十字形结构元素中循环\n"	);
+}
+```
+![yang](./photo/35.png)
+![yang](./photo/36.png)
+
+#### 19.floodFill函数用法示例
+```
+
+
+#include <opencv2/opencv.hpp>  
+#include <opencv2/imgproc/imgproc.hpp>  
+using namespace cv;  
+
+
+
+//-----------------------------------【main( )函数】--------------------------------------------  
+//      描述：控制台应用程序的入口函数，我们的程序从这里开始  
+//----------------------------------------------------------------------------------------------- 
+int main( )
+{    
+	Mat src = imread("1.jpg"); 
+	imshow("【原始图】",src);
+	Rect ccomp;
+	floodFill(src, Point(50,300), Scalar(155, 255,55), &ccomp, Scalar(20, 20, 20),Scalar(20, 20, 20));
+	imshow("【效果图】",src);
+	waitKey(0);
+	return 0;    
+}  
+```
+![yang](./photo/37.png)
+![yang](./photo/38.png)
+
+#### 20.漫水填充算法综合示例
+```
+
+
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------  
+//      描述：全局变量声明  
+//-----------------------------------------------------------------------------------------------  
+Mat g_srcImage, g_dstImage, g_grayImage, g_maskImage;//定义原始图、目标图、灰度图、掩模图
+int g_nFillMode = 1;//漫水填充的模式
+int g_nLowDifference = 20, g_nUpDifference = 20;//负差最大值、正差最大值
+int g_nConnectivity = 4;//表示floodFill函数标识符低八位的连通值
+int g_bIsColor = true;//是否为彩色图的标识符布尔值
+bool g_bUseMask = false;//是否显示掩膜窗口的布尔值
+int g_nNewMaskVal = 255;//新的重新绘制的像素值
+
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------  
+//      描述：输出一些帮助信息  
+//----------------------------------------------------------------------------------------------  
+static void ShowHelpText()  
+{  
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第50个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息  
+	printf("\n\n\t欢迎来到漫水填充示例程序~");  
+	printf("\n\n\t本示例根据鼠标选取的点搜索图像中与之颜色相近的点，并用不同颜色标注。");  
+	
+	printf( "\n\n\t按键操作说明: \n\n"  
+		"\t\t鼠标点击图中区域- 进行漫水填充操作\n"  
+		"\t\t键盘按键【ESC】- 退出程序\n"  
+		"\t\t键盘按键【1】-  切换彩色图/灰度图模式\n"  
+		"\t\t键盘按键【2】- 显示/隐藏掩膜窗口\n"  
+		"\t\t键盘按键【3】- 恢复原始图像\n"  
+		"\t\t键盘按键【4】- 使用空范围的漫水填充\n"  
+		"\t\t键盘按键【5】- 使用渐变、固定范围的漫水填充\n"  
+		"\t\t键盘按键【6】- 使用渐变、浮动范围的漫水填充\n"  
+		"\t\t键盘按键【7】- 操作标志符的低八位使用4位的连接模式\n"  
+		"\t\t键盘按键【8】- 操作标志符的低八位使用8位的连接模式\n\n" 	);  
+}  
+
+
+//-----------------------------------【onMouse( )函数】--------------------------------------  
+//      描述：鼠标消息onMouse回调函数
+//---------------------------------------------------------------------------------------------
+static void onMouse( int event, int x, int y, int, void* )
+{
+	// 若鼠标左键没有按下，便返回
+	//此句代码的OpenCV2版为：
+	//if( event != CV_EVENT_LBUTTONDOWN )
+	//此句代码的OpenCV3版为：
+	if( event != EVENT_LBUTTONDOWN )
+		return;
+
+	//-------------------【<1>调用floodFill函数之前的参数准备部分】---------------
+	Point seed = Point(x,y);
+	int LowDifference = g_nFillMode == 0 ? 0 : g_nLowDifference;//空范围的漫水填充，此值设为0，否则设为全局的g_nLowDifference
+	int UpDifference = g_nFillMode == 0 ? 0 : g_nUpDifference;//空范围的漫水填充，此值设为0，否则设为全局的g_nUpDifference
+
+	//标识符的0~7位为g_nConnectivity，8~15位为g_nNewMaskVal左移8位的值，16~23位为CV_FLOODFILL_FIXED_RANGE或者0。
+	//此句代码的OpenCV2版为：
+	//int flags = g_nConnectivity + (g_nNewMaskVal << 8) +(g_nFillMode == 1 ? CV_FLOODFILL_FIXED_RANGE : 0);
+	//此句代码的OpenCV3版为：
+	int flags = g_nConnectivity + (g_nNewMaskVal << 8) +(g_nFillMode == 1 ? FLOODFILL_FIXED_RANGE : 0);
+
+	//随机生成bgr值
+	int b = (unsigned)theRNG() & 255;//随机返回一个0~255之间的值
+	int g = (unsigned)theRNG() & 255;//随机返回一个0~255之间的值
+	int r = (unsigned)theRNG() & 255;//随机返回一个0~255之间的值
+	Rect ccomp;//定义重绘区域的最小边界矩形区域
+
+	Scalar newVal = g_bIsColor ? Scalar(b, g, r) : Scalar(r*0.299 + g*0.587 + b*0.114);//在重绘区域像素的新值，若是彩色图模式，取Scalar(b, g, r)；若是灰度图模式，取Scalar(r*0.299 + g*0.587 + b*0.114)
+
+	Mat dst = g_bIsColor ? g_dstImage : g_grayImage;//目标图的赋值
+	int area;
+
+	//--------------------【<2>正式调用floodFill函数】-----------------------------
+	if( g_bUseMask )
+	{
+		//此句代码的OpenCV2版为：
+		//threshold(g_maskImage, g_maskImage, 1, 128, CV_THRESH_BINARY);
+		//此句代码的OpenCV3版为：
+		threshold(g_maskImage, g_maskImage, 1, 128, THRESH_BINARY);
+		area = floodFill(dst, g_maskImage, seed, newVal, &ccomp, Scalar(LowDifference, LowDifference, LowDifference),
+			Scalar(UpDifference, UpDifference, UpDifference), flags);
+		imshow( "mask", g_maskImage );
+	}
+	else
+	{
+		area = floodFill(dst, seed, newVal, &ccomp, Scalar(LowDifference, LowDifference, LowDifference),
+			Scalar(UpDifference, UpDifference, UpDifference), flags);
+	}
+
+	imshow("效果图", dst);
+	cout << area << " 个像素被重绘\n";
+}
+
+
+//-----------------------------------【main( )函数】--------------------------------------------  
+//      描述：控制台应用程序的入口函数，我们的程序从这里开始  
+//-----------------------------------------------------------------------------------------------  
+int main( int argc, char** argv )
+{
+	//改变console字体颜色  
+	system("color 2F");    
+
+	//载入原图
+	g_srcImage = imread("1.jpg", 1);
+
+	if( !g_srcImage.data ) { printf("读取图片image0错误~！ \n"); return false; }  
+
+	//显示帮助文字
+	ShowHelpText();
+
+	g_srcImage.copyTo(g_dstImage);//拷贝源图到目标图
+	cvtColor(g_srcImage, g_grayImage, COLOR_BGR2GRAY);//转换三通道的image0到灰度图
+	g_maskImage.create(g_srcImage.rows+2, g_srcImage.cols+2, CV_8UC1);//利用image0的尺寸来初始化掩膜mask
+
+	//此句代码的OpenCV2版为：
+	//namedWindow( "效果图",CV_WINDOW_AUTOSIZE );
+	//此句代码的OpenCV2版为：
+	namedWindow( "效果图",WINDOW_AUTOSIZE );
+
+
+	//创建Trackbar
+	createTrackbar( "负差最大值", "效果图", &g_nLowDifference, 255, 0 );
+	createTrackbar( "正差最大值" ,"效果图", &g_nUpDifference, 255, 0 );
+
+	//鼠标回调函数
+	setMouseCallback( "效果图", onMouse, 0 );
+
+	//循环轮询按键
+	while(1)
+	{
+		//先显示效果图
+		imshow("效果图", g_bIsColor ? g_dstImage : g_grayImage);
+
+		//获取键盘按键
+		int c = waitKey(0);
+		//判断ESC是否按下，若按下便退出
+		if( (c & 255) == 27 )
+		{
+			cout << "程序退出...........\n";
+			break;
+		}
+
+		//根据按键的不同，进行各种操作
+		switch( (char)c )
+		{
+			//如果键盘“1”被按下，效果图在在灰度图，彩色图之间互换
+		case '1':
+			if( g_bIsColor )//若原来为彩色，转为灰度图，并且将掩膜mask所有元素设置为0
+			{
+				cout << "键盘“1”被按下，切换彩色/灰度模式，当前操作为将【彩色模式】切换为【灰度模式】\n";
+				cvtColor(g_srcImage, g_grayImage, COLOR_BGR2GRAY);
+				g_maskImage = Scalar::all(0);	//将mask所有元素设置为0
+				g_bIsColor = false;	//将标识符置为false，表示当前图像不为彩色，而是灰度
+			}
+			else//若原来为灰度图，便将原来的彩图image0再次拷贝给image，并且将掩膜mask所有元素设置为0
+			{
+				cout << "键盘“1”被按下，切换彩色/灰度模式，当前操作为将【彩色模式】切换为【灰度模式】\n";
+				g_srcImage.copyTo(g_dstImage);
+				g_maskImage = Scalar::all(0);
+				g_bIsColor = true;//将标识符置为true，表示当前图像模式为彩色
+			}
+			break;
+			//如果键盘按键“2”被按下，显示/隐藏掩膜窗口
+		case '2':
+			if( g_bUseMask )
+			{
+				destroyWindow( "mask" );
+				g_bUseMask = false;
+			}
+			else
+			{
+				namedWindow( "mask", 0 );
+				g_maskImage = Scalar::all(0);
+				imshow("mask", g_maskImage);
+				g_bUseMask = true;
+			}
+			break;
+			//如果键盘按键“3”被按下，恢复原始图像
+		case '3':
+			cout << "按键“3”被按下，恢复原始图像\n";
+			g_srcImage.copyTo(g_dstImage);
+			cvtColor(g_dstImage, g_grayImage, COLOR_BGR2GRAY);
+			g_maskImage = Scalar::all(0);
+			break;
+			//如果键盘按键“4”被按下，使用空范围的漫水填充
+		case '4':
+			cout << "按键“4”被按下，使用空范围的漫水填充\n";
+			g_nFillMode = 0;
+			break;
+			//如果键盘按键“5”被按下，使用渐变、固定范围的漫水填充
+		case '5':
+			cout << "按键“5”被按下，使用渐变、固定范围的漫水填充\n";
+			g_nFillMode = 1;
+			break;
+			//如果键盘按键“6”被按下，使用渐变、浮动范围的漫水填充
+		case '6':
+			cout << "按键“6”被按下，使用渐变、浮动范围的漫水填充\n";
+			g_nFillMode = 2;
+			break;
+			//如果键盘按键“7”被按下，操作标志符的低八位使用4位的连接模式
+		case '7':
+			cout << "按键“7”被按下，操作标志符的低八位使用4位的连接模式\n";
+			g_nConnectivity = 4;
+			break;
+			//如果键盘按键“8”被按下，操作标志符的低八位使用8位的连接模式
+		case '8':
+			cout << "按键“8”被按下，操作标志符的低八位使用8位的连接模式\n";
+			g_nConnectivity = 8;
+			break;
+		}
+	}
+
+	return 0;
+}
+
+
+```
+
+![yang](./photo/39.png)
+![yang](./photo/40.png)
+
+#### 21.resize函数用法示例
+```
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat srcImage = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	Mat tmpImage,dstImage1,dstImage2;//临时变量和目标图的定义
+	tmpImage=srcImage;//将原始图赋给临时变量
+
+	//显示原始图  
+	imshow("【原始图】", srcImage);  
+
+	//进行尺寸调整操作
+	resize(tmpImage,dstImage1,Size( tmpImage.cols/2, tmpImage.rows/2 ),(0,0),(0,0),3);
+	resize(tmpImage,dstImage2,Size( tmpImage.cols*2, tmpImage.rows*2 ),(0,0),(0,0),3);
+
+	//显示效果图  
+	imshow("【效果图】之一", dstImage1);  
+	imshow("【效果图】之二", dstImage2);  
+
+	waitKey(0);  
+	return 0;  
+}
+
+```
+![yang](./photo/41.png)
+![yang](./photo/42.png)
+
+#### 22.pyrUp函数用法示例
+```
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+
+//-----------------------------------【main( )函数】------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat srcImage = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	Mat tmpImage,dstImage;//临时变量和目标图的定义
+	tmpImage=srcImage;//将原始图赋给临时变量
+
+	//显示原始图  
+	imshow("【原始图】", srcImage);  
+	//进行向上取样操作
+	pyrUp( tmpImage, dstImage, Size( tmpImage.cols*2, tmpImage.rows*2 ) );
+	//显示效果图  
+	imshow("【效果图】", dstImage);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+
+![yang](./photo/43.png)
+![yang](./photo/44.png)
+
+#### 23.pyDown函数用法示例
+```
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+//-----------------------------------【main( )函数】-----------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图   
+	Mat srcImage = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	Mat tmpImage,dstImage;//临时变量和目标图的定义
+	tmpImage=srcImage;//将原始图赋给临时变量
+
+	//显示原始图  
+	imshow("【原始图】", srcImage);  
+	//进行向下取样操作
+	pyrDown( tmpImage, dstImage, Size( tmpImage.cols/2, tmpImage.rows/2 ) );
+	//显示效果图  
+	imshow("【效果图】", dstImage);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+
+![yang](./photo/45.png)
+![yang](./photo/46.png)
+
+#### 24.图像金字塔和resize综合示例
+```
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace std;
+using namespace cv;
+
+
+//-----------------------------------【宏定义部分】--------------------------------------------
+//	描述：定义一些辅助宏
+//------------------------------------------------------------------------------------------------
+#define WINDOW_NAME "【程序窗口】"		//为窗口标题定义的宏
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//		描述：全局变量声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage, g_dstImage, g_tmpImage;
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数声明
+//-----------------------------------------------------------------------------------------------
+static void ShowHelpText();
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//改变console字体颜色
+	system("color 2F");  
+
+	//显示帮助文字
+	ShowHelpText();
+
+	//载入原图
+	g_srcImage = imread("1.jpg");//工程目录下需要有一张名为1.jpg的测试图像，且其尺寸需被2的N次方整除，N为可以缩放的次数
+	if( !g_srcImage.data ) { printf("Oh，no，读取srcImage错误~！ \n"); return false; }
+
+	// 创建显示窗口
+	namedWindow( WINDOW_NAME, WINDOW_AUTOSIZE );
+	imshow(WINDOW_NAME, g_srcImage);
+
+	//参数赋值
+	g_tmpImage = g_srcImage;
+	g_dstImage = g_tmpImage;
+
+	int key =0;
+
+	//轮询获取按键信息
+	while(1)
+	{
+		key=waitKey(9) ;//读取键值到key变量中
+
+		//根据key变量的值，进行不同的操作
+		switch(key)
+		{
+			//======================【程序退出相关键值处理】=======================  
+		case 27://按键ESC
+			return 0;
+			break; 
+
+		case 'q'://按键Q
+			return 0;
+			break; 
+
+			//======================【图片放大相关键值处理】=======================  
+		case 'a'://按键A按下，调用pyrUp函数
+			pyrUp( g_tmpImage, g_dstImage, Size( g_tmpImage.cols*2, g_tmpImage.rows*2 ) );
+			printf( ">检测到按键【A】被按下，开始进行基于【pyrUp】函数的图片放大：图片尺寸×2 \n" );		
+			break; 
+
+		case 'w'://按键W按下，调用resize函数
+			resize(g_tmpImage,g_dstImage,Size( g_tmpImage.cols*2, g_tmpImage.rows*2 ));
+			printf( ">检测到按键【W】被按下，开始进行基于【resize】函数的图片放大：图片尺寸×2 \n" );		
+			break; 
+
+		case '1'://按键1按下，调用resize函数
+			resize(g_tmpImage,g_dstImage,Size( g_tmpImage.cols*2, g_tmpImage.rows*2 ));
+			printf( ">检测到按键【1】被按下，开始进行基于【resize】函数的图片放大：图片尺寸×2 \n" );
+			break; 
+
+		case '3': //按键3按下，调用pyrUp函数
+			pyrUp( g_tmpImage, g_dstImage, Size( g_tmpImage.cols*2, g_tmpImage.rows*2 ));
+			printf( ">检测到按键【3】被按下，开始进行基于【pyrUp】函数的图片放大：图片尺寸×2 \n" );
+			break; 
+			//======================【图片缩小相关键值处理】=======================  
+		case 'd': //按键D按下，调用pyrDown函数
+			pyrDown( g_tmpImage, g_dstImage, Size( g_tmpImage.cols/2, g_tmpImage.rows/2 ));
+			printf( ">检测到按键【D】被按下，开始进行基于【pyrDown】函数的图片缩小：图片尺寸/2\n" );
+			break; 
+
+		case  's' : //按键S按下，调用resize函数
+			resize(g_tmpImage,g_dstImage,Size( g_tmpImage.cols/2, g_tmpImage.rows/2 ));
+			printf( ">检测到按键【S】被按下，开始进行基于【resize】函数的图片缩小：图片尺寸/2\n" );
+			break; 
+
+		case '2'://按键2按下，调用resize函数
+			resize(g_tmpImage,g_dstImage,Size( g_tmpImage.cols/2, g_tmpImage.rows/2 ));
+			printf( ">检测到按键【2】被按下，开始进行基于【resize】函数的图片缩小：图片尺寸/2\n" );
+			break; 
+
+		case '4': //按键4按下，调用pyrDown函数
+			pyrDown( g_tmpImage, g_dstImage, Size( g_tmpImage.cols/2, g_tmpImage.rows/2 ) );
+			printf( ">检测到按键【4】被按下，开始进行基于【pyrDown】函数的图片缩小：图片尺寸/2\n" );
+			break; 
+		}
+
+		//经过操作后，显示变化后的图
+		imshow( WINDOW_NAME, g_dstImage );
+
+		//将g_dstImage赋给g_tmpImage，方便下一次循环
+		g_tmpImage = g_dstImage;
+	}
+
+	return 0;
+}
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------
+//		描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+static void ShowHelpText()
+{
+
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第54个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息
+	printf("\n\t欢迎来到OpenCV图像金字塔和resize示例程序~\n\n");
+	printf( "\n\n\t按键操作说明: \n\n"
+		"\t\t键盘按键【ESC】或者【Q】- 退出程序\n"
+		"\t\t键盘按键【1】或者【W】- 进行基于【resize】函数的图片放大\n"
+		"\t\t键盘按键【2】或者【S】- 进行基于【resize】函数的图片缩小\n"
+		"\t\t键盘按键【3】或者【A】- 进行基于【pyrUp】函数的图片放大\n"
+		"\t\t键盘按键【4】或者【D】- 进行基于【pyrDown】函数的图片缩小\n"
+		);
+}
+```
+![yang](./photo/47.png)
+![yang](./photo/48.png)
+
+#### 25.基本阈值操作
+```
+
+
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//		描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME "【程序窗口】"        //为窗口标题定义的宏 
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//		描述：全局变量的声明
+//-----------------------------------------------------------------------------------------------
+int g_nThresholdValue = 100;
+int g_nThresholdType = 3;
+Mat g_srcImage, g_grayImage, g_dstImage;
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数的声明
+//-----------------------------------------------------------------------------------------------
+static void ShowHelpText( );//输出帮助文字
+void on_Threshold( int, void* );//回调函数
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//【0】改变console字体颜色
+	system("color 1F"); 
+
+	//【0】显示欢迎和帮助文字
+	ShowHelpText( );
+
+	//【1】读入源图片
+	g_srcImage = imread("1.jpg");
+	if(!g_srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定的图片存在~！ \n"); return false; }  
+	imshow("原始图",g_srcImage);
+
+	//【2】存留一份原图的灰度图
+	cvtColor( g_srcImage, g_grayImage, COLOR_RGB2GRAY );
+
+	//【3】创建窗口并显示原始图
+	namedWindow( WINDOW_NAME, WINDOW_AUTOSIZE );
+
+	//【4】创建滑动条来控制阈值
+	createTrackbar( "模式",
+		WINDOW_NAME, &g_nThresholdType,
+		4, on_Threshold );
+
+	createTrackbar( "参数值",
+		WINDOW_NAME, &g_nThresholdValue,
+		255, on_Threshold );
+
+	//【5】初始化自定义的阈值回调函数
+	on_Threshold( 0, 0 );
+
+	// 【6】轮询等待用户按键，如果ESC键按下则退出程序
+	while(1)
+	{
+		int key;
+		key = waitKey( 20 );
+		if( (char)key == 27 ){ break; }
+	}
+
+}
+
+//-----------------------------------【on_Threshold( )函数】------------------------------------
+//		描述：自定义的阈值回调函数
+//-----------------------------------------------------------------------------------------------
+void on_Threshold( int, void* )
+{
+	//调用阈值函数
+	threshold(g_grayImage,g_dstImage,g_nThresholdValue,255,g_nThresholdType);
+
+	//更新效果图
+	imshow( WINDOW_NAME, g_dstImage );
+}
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------  
+//      描述：输出一些帮助信息  
+//----------------------------------------------------------------------------------------------  
+static void ShowHelpText()  
+{  
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第55个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息  
+	printf(	"\n\t欢迎来到【基本阈值操作】示例程序~\n\n");  
+	printf(	"\n\t按键操作说明: \n\n"  
+		"\t\t键盘按键【ESC】- 退出程序\n"  
+		"\t\t滚动条模式0- 二进制阈值\n"  
+		"\t\t滚动条模式1- 反二进制阈值\n"  
+		"\t\t滚动条模式2- 截断阈值\n"  
+		"\t\t滚动条模式3- 反阈值化为0\n"  
+		"\t\t滚动条模式4- 阈值化为0\n"  );  
+}  
+
+```
+![yang](./photo/49.png)
+![yang](./photo/50.png)
+
+### 笔记部分
+1. 平滑处理（smoothing）也称模糊处理（bluring）
+
+用途：减少图像上的噪点、失真、降低图像分辨率。
+
+2. 图像滤波，尽量保留图像细节特征的条件下对目标图像的噪声进行抑制。
+
+3. 信号或者图像，能量大多集中在幅度谱的低频和中频段，在高频段，有用的信息经常被噪声淹没，所以，一个能降低高频成分幅度的滤波器就能够减弱噪声的影响。
+
+4. 平滑滤波是低频增强的空间域滤波技术，目的：一，模糊；二，消除噪音。
+
+5. 线性滤波
+
+方框滤波，均值滤波，高斯滤波
+
+6. 非线性滤波
+
+中值滤波，双边滤波
+
+7.常见的线性滤波
+
+低通滤波器：允许低频率通过；
+
+高通滤波器：允许高频率通过；
+
+带通滤波器：允许一定范围频率通过；
+
+带阻滤波器：阻止一定范围频率通过并允许其他频率通过；
+
+全通滤波器：允许所有频率通过，仅改变相位关系；
+
+陷波滤波器：阻止一个狭窄频率范围通过，一种特殊的带阻滤波器。
+
+8. 滤波：
+
+是将信号中特定波段频率滤除的操作，是抑制和防止干扰的一项重要措施。
+
+9. 滤波可分为低通滤波和高通滤波：
+
+低通就是模糊；
+
+高通就是锐化。
+
+10. 高斯滤波：指用高斯函数作为滤波函数的滤波操作；
+
+11. 高斯模糊：就是高斯低通滤波。
+
+12. 方框滤波BoxFilter()         P157
+
+13. 均值滤波是方框滤波归一化（normalized）后的特殊情况
+
+14. 均值滤波的缺陷：不能很好的保护细节，在去噪的同时也破坏了图像的细节部分，图像变的模糊，不能很好地去除噪声点。
+
+15. 均值滤波：blur函数
+
+16. 高斯滤波：GaussianBlur函数
+
+作用：模糊一张图片
+
+ 
+
+17. 中值滤波（Medianfilter）,非线性滤波，用点邻域灰度值的中指来代替该像素点的灰度值，在去除脉冲噪声、椒盐噪声的同时又可以保留图像的边缘细节。
+
+函数medianBlur()
+
+18. 双边滤波（Bilateralfilter），非线性滤波，结合图像的空间邻近度和像素值相似度的一种这种处理，同时考虑空域信息和灰度相似性，达到保边去噪的目的，具有简单、非迭代、局部的特点。
+
+函数bilateralFilter()
+
+19. 膨胀（dilate） 腐蚀（erode）
+
+功能：消除噪声；分割独立的图像元素，在图像中连接相邻的元素；寻找图像中的明显的极大值区域或极小值区域；求出图像的梯度。
+
+20. 腐蚀和膨胀是对白色部分（高亮部分）而言的，不是黑色部分。
+
+膨胀，对图像中的高亮部分进行膨胀，效果图拥有比原图更大的高亮区域；
+
+腐蚀，原图中的高亮部分被腐蚀，效果图拥有比原图更小的高亮区域。
+
+21.膨胀，就是求局部最大值的操作；
+
+复试，就是求局部最小值的操作。
+
+22. 函数getStructuringElement返回指定形状和尺寸的结构元素（内核矩阵）
+
+第一个参数，表示内核的形状，三种形状可以选择，
+
+矩形：MORPH_RECT;
+
+交叉形：MORPH_CROSS;
+
+椭圆形：MORPH_ELLIPSE。
+
+第二个参数，内核的尺寸，eg:   Size(15,15)
+
+第三个参数，锚点的位置
+
+23. 利用morphologyEx函数进行膨胀
+
+Matelement=getStructuringElement(MORPH_RECT,Size(15,15));
+
+morphologyEx(srcimage,dstimage, MORPH_DILATE, element);
+
+24. 利用morphologyEx函数进行腐蚀
+
+morphologyEx(srcimage,dstimage, MORPH_ERODE, element);
+
+25. 开运算，就是先腐蚀后膨胀的过程
+
+数学表达式:dst=open(src,element)=dilate(erode(src,element))
+
+函数：morphologyEx(src,dst,MORPH_OPEN,element);
+
+它可以用来消除小物体，在纤细点分离物体，且在平滑较大物体的边界的同时不明显改变其面积。
+
+26. 闭运算，先膨胀后腐蚀的过程
+
+数学表达式:dst=clese(src,element)=erode(dilate(src,element))
+
+函数：morphologyEx(image,image, MORPH_CLOSE, element);
+
+它可以排除小型黑洞（黑色区域）。
+
+27. 形态学梯度，是膨胀图与腐蚀图之差
+
+数学表达式:dst=morph-grad(src,element)=dilate(src,element)-erode(src,element)
+
+函数morphologyEx(image,image, MORPH_GRADIENT, element);
+
+28. 顶帽运算，原图像与开运算的结果图之差
+
+数学表达式：dst=tophat(src,element)=src-open(src,element)
+
+函数 morphologyEx(image, image, MORPH_TOPHAT, element);
+
+它得到的效果图突出了比原图轮廓周围更明亮的区域
+
+29. 黑帽运算，闭运算的结果与原图像之差
+
+数学表达式：dst=blacehat(src,element)=close(src,element)-src
+
+函数 morphologyEx(image, image, MORPH_BLACKHAT, element);
+
+它突出了比原图轮廓周围的区域更暗的区域，可以用来分离比邻近点暗一些的斑块，效果图有着非常完美的轮廓。
+
+30. 漫水填充  floodFill
+
+选中和种子点相连的区域，将该区域替换成指定的颜色。
+
+31. 图像金字塔
+
+是图像中多尺度表达的一种，最主要应用于图像的分割，是一种以多分辨率来解释图像的有效但概念简单的结构。
+
+32. 一幅图像的金字塔是一系列以金字塔形状排列，分辨率逐步降低，且来源于同一张原始图的图像集合。通过梯次向下采样获得，直到达到某个终止条件时停止。
+
+33. 金字塔的底部是待处理图像的高分辨率表示，顶部是低分辨率的近似。
+
+34. 层级越高，图像越小，分辨率越低。
+
+35. 两种常见的图像金字塔
+
+★高斯金字塔（Gaussianpyramid），用来向下采样。
+
+★拉普拉斯金字塔（Laplacianpyramid），从金字塔低层图像重建上层未采样图像，预测残差，可以对图像进行最大程度还原，配合高斯金字塔一起使用。
+
+二者区别：
+
+★高斯金字塔用来向下采样图像；
+
+★拉普拉斯金字塔从金字塔底层图像中向上采样，重建一个图像。
+
+36. 尺寸调整：resize()函数
+
+37. 向上采样：pyrUp()函数
+
+作用，向上采样并模糊一张图片，简言之，放大一张图片。
+
+38. 采样：pyrDown()函数
+
+作用，向下采样并模糊一张图片，简言之，缩小一张图片。
+
+39. 固定阈值操作：Threshold()函数   p238
+
+40. 自适应阈值操作：adaptiveThreshold()函数
+## 第七章 图像变换
+### 实验部分
+#### 1.边缘检测canny函数用法示例
+```
+
+
+#include <opencv2/opencv.hpp>
+#include<opencv2/highgui/highgui.hpp>
+#include<opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+//-----------------------------------【main( )函数】-------------------------------------------
+//            描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//载入原始图  
+	Mat srcImage = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	Mat srcImage1=srcImage.clone();
+
+	//显示原始图 
+	imshow("【原始图】Canny边缘检测", srcImage); 
+
+	//----------------------------------------------------------------------------------
+	//	一、最简单的canny用法，拿到原图后直接用。
+	//	注意：此方法在OpenCV2中可用，在OpenCV3中已失效
+	//----------------------------------------------------------------------------------
+ 	//Canny( srcImage, srcImage, 150, 100,3 );
+	//imshow("【效果图】Canny边缘检测", srcImage); 
+
+
+	//----------------------------------------------------------------------------------
+	//	二、高阶的canny用法，转成灰度图，降噪，用canny，最后将得到的边缘作为掩码，拷贝原图到效果图上，得到彩色的边缘图
+	//----------------------------------------------------------------------------------
+	Mat dstImage,edge,grayImage;
+
+	// 【1】创建与src同类型和大小的矩阵(dst)
+	dstImage.create( srcImage1.size(), srcImage1.type() );
+
+	// 【2】将原图像转换为灰度图像
+	cvtColor( srcImage1, grayImage, COLOR_BGR2GRAY );
+
+	// 【3】先用使用 3x3内核来降噪
+	blur( grayImage, edge, Size(3,3) );
+
+	// 【4】运行Canny算子
+	Canny( edge, edge, 3, 9,3 );
+
+	//【5】将g_dstImage内的所有元素设置为0 
+	dstImage = Scalar::all(0);
+
+	//【6】使用Canny算子输出的边缘图g_cannyDetectedEdges作为掩码，来将原图g_srcImage拷到目标图g_dstImage中
+	srcImage1.copyTo( dstImage, edge);
+
+	//【7】显示效果图 
+	imshow("【效果图】Canny边缘检测2", dstImage); 
+
+
+	waitKey(0); 
+
+	return 0; 
+}
+```
+![yang](./photo/51.png)
+![yang](./photo/52.png)
+
+#### 2.边缘检测sobel函数用法
+```
+
+#include <opencv2/opencv.hpp>
+#include<opencv2/highgui/highgui.hpp>
+#include<opencv2/imgproc/imgproc.hpp>
+
+//-----------------------------------【命名空间声明部分】---------------------------------------
+//            描述：包含程序所使用的命名空间
+//-----------------------------------------------------------------------------------------------
+using namespace cv;
+//-----------------------------------【main( )函数】--------------------------------------------
+//            描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//【0】创建 grad_x 和 grad_y 矩阵
+	Mat grad_x, grad_y;
+	Mat abs_grad_x, abs_grad_y,dst;
+
+	//【1】载入原始图  
+	Mat src = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+
+	//【2】显示原始图 
+	imshow("【原始图】sobel边缘检测", src); 
+
+	//【3】求 X方向梯度
+	Sobel( src, grad_x, CV_16S, 1, 0, 3, 1, 1, BORDER_DEFAULT );
+	convertScaleAbs( grad_x, abs_grad_x );
+	imshow("【效果图】 X方向Sobel", abs_grad_x); 
+
+	//【4】求Y方向梯度
+	Sobel( src, grad_y, CV_16S, 0, 1, 3, 1, 1, BORDER_DEFAULT );
+	convertScaleAbs( grad_y, abs_grad_y );
+	imshow("【效果图】Y方向Sobel", abs_grad_y); 
+
+	//【5】合并梯度(近似)
+	addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, dst );
+	imshow("【效果图】整体方向Sobel", dst); 
+
+	waitKey(0); 
+	return 0; 
+}
+```
+
+![yang](./photo/53.png)
+![yang](./photo/54.png)
+
+#### 3.边缘检测Laplacian函数用法
+```
+
+
+#include <opencv2/opencv.hpp>
+#include<opencv2/highgui/highgui.hpp>
+#include<opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//            描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//【0】变量的定义
+	Mat src,src_gray,dst, abs_dst;
+
+	//【1】载入原始图  
+	src = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+
+	//【2】显示原始图 
+	imshow("【原始图】图像Laplace变换", src); 
+
+	//【3】使用高斯滤波消除噪声
+	GaussianBlur( src, src, Size(3,3), 0, 0, BORDER_DEFAULT );
+
+	//【4】转换为灰度图
+	cvtColor( src, src_gray, COLOR_RGB2GRAY );
+
+	//【5】使用Laplace函数
+	Laplacian( src_gray, dst, CV_16S, 3, 1, 0, BORDER_DEFAULT );
+
+	//【6】计算绝对值，并将结果转换成8位
+	convertScaleAbs( dst, abs_dst );
+
+	//【7】显示效果图
+	imshow( "【效果图】图像Laplace变换", abs_dst );
+
+	waitKey(0); 
+
+	return 0; 
+}
+```
+![yang](./photo/55.png)
+![yang](./photo/56.png)
+
+#### 4.边缘检测Scharr函数用法
+
+```
+
+
+#include <opencv2/opencv.hpp>
+#include<opencv2/highgui/highgui.hpp>
+#include<opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//            描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main()
+{
+	//【0】创建 grad_x 和 grad_y 矩阵
+	Mat grad_x, grad_y;
+	Mat abs_grad_x, abs_grad_y, dst;
+
+	//【1】载入原始图  
+	Mat src = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+
+	//【2】显示原始图 
+	imshow("【原始图】Scharr滤波器", src);
+
+	//【3】求 X方向梯度
+	Scharr(src, grad_x, CV_16S, 1, 0, 1, 0, BORDER_DEFAULT);
+	convertScaleAbs(grad_x, abs_grad_x);
+	imshow("【效果图】 X方向Scharr", abs_grad_x);
+
+	//【4】求Y方向梯度
+	Scharr(src, grad_y, CV_16S, 0, 1, 1, 0, BORDER_DEFAULT);
+	convertScaleAbs(grad_y, abs_grad_y);
+	imshow("【效果图】Y方向Scharr", abs_grad_y);
+
+	//【5】合并梯度(近似)
+	addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, dst);
+
+	//【6】显示效果图
+	imshow("【效果图】合并梯度后Scharr", dst);
+
+	waitKey(0);
+	return 0;
+}
+```
+
+![yang](./photo/57.png)
+![yang](./photo/58.png)
+
+#### 5.霍夫线变换houghlines函数
+```
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//【1】载入原始图和Mat变量定义   
+	Mat srcImage = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	Mat midImage,dstImage;//临时变量和目标图的定义
+
+	//【2】进行边缘检测和转化为灰度图
+	Canny(srcImage, midImage, 50, 200, 3);//进行一此canny边缘检测
+	cvtColor(midImage,dstImage, COLOR_GRAY2BGR);//转化边缘检测后的图为灰度图
+
+	//【3】进行霍夫线变换
+	vector<Vec2f> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
+	HoughLines(midImage, lines, 1, CV_PI/180, 150, 0, 0 );
+
+	//【4】依次在图中绘制出每条线段
+	for( size_t i = 0; i < lines.size(); i++ )
+	{
+		float rho = lines[i][0], theta = lines[i][1];
+		Point pt1, pt2;
+		double a = cos(theta), b = sin(theta);
+		double x0 = a*rho, y0 = b*rho;
+		pt1.x = cvRound(x0 + 1000*(-b));
+		pt1.y = cvRound(y0 + 1000*(a));
+		pt2.x = cvRound(x0 - 1000*(-b));
+		pt2.y = cvRound(y0 - 1000*(a));
+		//此句代码的OpenCV2版为:
+		//line( dstImage, pt1, pt2, Scalar(55,100,195), 1, CV_AA);
+		//此句代码的OpenCV3版为:
+		line( dstImage, pt1, pt2, Scalar(55,100,195), 1, LINE_AA);
+	}
+
+	//【5】显示原始图  
+	imshow("【原始图】", srcImage);  
+
+	//【6】边缘检测后的图 
+	imshow("【边缘检测后的图】", midImage);  
+
+	//【7】显示效果图  
+	imshow("【效果图】", dstImage);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+
+
+```
+![yang](./photo/59.png)
+![yang](./photo/60.png)
+
+#### 6.霍夫线变换houghlinesp函数
+```
+
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-------------------------------------------------------------------------------------------------
+int main( )
+{
+	//【1】载入原始图和Mat变量定义   
+	Mat srcImage = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	Mat midImage,dstImage;//临时变量和目标图的定义
+
+	//【2】进行边缘检测和转化为灰度图
+	Canny(srcImage, midImage, 50, 200, 3);//进行一此canny边缘检测
+	cvtColor(midImage,dstImage, COLOR_GRAY2BGR);//转化边缘检测后的图为灰度图
+
+	//【3】进行霍夫线变换
+	vector<Vec4i> lines;//定义一个矢量结构lines用于存放得到的线段矢量集合
+	HoughLinesP(midImage, lines, 1, CV_PI/180, 80, 50, 10 );
+
+	//【4】依次在图中绘制出每条线段
+	for( size_t i = 0; i < lines.size(); i++ )
+	{
+		Vec4i l = lines[i];
+		//此句代码的OpenCV2版为：
+		//line( dstImage, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(186,88,255), 1, CV_AA);
+		//此句代码的OpenCV3版为：
+		line( dstImage, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(186,88,255), 1, LINE_AA);
+	}
+
+	//【5】显示原始图  
+	imshow("【原始图】", srcImage);  
+
+	//【6】边缘检测后的图 
+	imshow("【边缘检测后的图】", midImage);  
+
+	//【7】显示效果图  
+	imshow("【效果图】", dstImage);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+
+
+```
+![yang](./photo/61.png)
+![yang](./photo/62.png)
+
+#### 7.霍夫线变换houghcircles函数
+```
+/
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+using namespace cv;
+using namespace std;
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//【1】载入原始图、Mat变量定义   
+	Mat srcImage = imread("1.jpg");  //工程目录下应该有一张名为1.jpg的素材图
+	Mat midImage,dstImage;//临时变量和目标图的定义
+
+	//【2】显示原始图
+	imshow("【原始图】", srcImage);  
+
+	//【3】转为灰度图并进行图像平滑
+	cvtColor(srcImage,midImage, COLOR_BGR2GRAY);//转化边缘检测后的图为灰度图
+	GaussianBlur( midImage, midImage, Size(9, 9), 2, 2 );
+
+	//【4】进行霍夫圆变换
+	vector<Vec3f> circles;
+	HoughCircles( midImage, circles, HOUGH_GRADIENT,1.5, 10, 200, 100, 0, 0 );
+
+	//【5】依次在图中绘制出圆
+	for( size_t i = 0; i < circles.size(); i++ )
+	{
+		//参数定义
+		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+		int radius = cvRound(circles[i][2]);
+		//绘制圆心
+		circle( srcImage, center, 3, Scalar(0,255,0), -1, 8, 0 );
+		//绘制圆轮廓
+		circle( srcImage, center, radius, Scalar(155,50,255), 3, 8, 0 );
+	}
+
+	//【6】显示效果图  
+	imshow("【效果图】", srcImage);  
+
+	waitKey(0);  
+
+	return 0;  
+}
+
+```
+![yang](./photo/63.png)
+![yang](./photo/64.png)
+
+#### 8.remap函数用法
+```
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+using namespace cv;
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//          描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main(  )
+{
+	//【0】变量定义
+	Mat srcImage, dstImage;
+	Mat map_x, map_y;
+
+	//【1】载入原始图
+	srcImage = imread( "1.jpg", 1 );
+	if(!srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定的图片存在~！ \n"); return false; }  
+	imshow("原始图",srcImage);
+
+	//【2】创建和原始图一样的效果图，x重映射图，y重映射图
+	dstImage.create( srcImage.size(), srcImage.type() );
+	map_x.create( srcImage.size(), CV_32FC1 );
+	map_y.create( srcImage.size(), CV_32FC1 );
+
+	//【3】双层循环，遍历每一个像素点，改变map_x & map_y的值
+	for( int j = 0; j < srcImage.rows;j++)
+	{ 
+		for( int i = 0; i < srcImage.cols;i++)
+		{
+			//改变map_x & map_y的值. 
+			map_x.at<float>(j,i) = static_cast<float>(i);
+			map_y.at<float>(j,i) = static_cast<float>(srcImage.rows - j);
+		} 
+	}
+
+	//【4】进行重映射操作
+	//此句代码的OpenCV2版为：
+	//remap( srcImage, dstImage, map_x, map_y, CV_INTER_LINEAR, BORDER_CONSTANT, Scalar(0,0, 0) );
+	//此句代码的OpenCV3版为：
+	remap( srcImage, dstImage, map_x, map_y, INTER_LINEAR, BORDER_CONSTANT, Scalar(0,0, 0) );
+
+	//【5】显示效果图
+	imshow( "【程序窗口】", dstImage );
+	waitKey();
+
+	return 0;
+}
+
+
+```
+![yang](./photo/65.png)
+![yang](./photo/66.png)
+
+#### 9.仿射变换综合示例
+```
+
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//		描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME1 "【原始图窗口】"					//为窗口标题定义的宏 
+#define WINDOW_NAME2 "【经过Warp后的图像】"        //为窗口标题定义的宏 
+#define WINDOW_NAME3 "【经过Warp和Rotate后的图像】"        //为窗口标题定义的宏 
+
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数的声明
+//-----------------------------------------------------------------------------------------------
+static void ShowHelpText( );
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main(  )
+{
+	//【0】改变console字体颜色
+	system("color 1F"); 
+
+	//【0】显示欢迎和帮助文字
+	ShowHelpText( );
+
+	//【1】参数准备
+	//定义两组点，代表两个三角形
+	Point2f srcTriangle[3];
+	Point2f dstTriangle[3];
+	//定义一些Mat变量
+	Mat rotMat( 2, 3, CV_32FC1 );
+	Mat warpMat( 2, 3, CV_32FC1 );
+	Mat srcImage, dstImage_warp, dstImage_warp_rotate;
+
+	//【2】加载源图像并作一些初始化
+	srcImage = imread( "1.jpg", 1 );
+	if(!srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定的图片存在~！ \n"); return false; } 
+	// 设置目标图像的大小和类型与源图像一致
+	dstImage_warp = Mat::zeros( srcImage.rows, srcImage.cols, srcImage.type() );
+
+	//【3】设置源图像和目标图像上的三组点以计算仿射变换
+	srcTriangle[0] = Point2f( 0,0 );
+	srcTriangle[1] = Point2f( static_cast<float>(srcImage.cols - 1), 0 );
+	srcTriangle[2] = Point2f( 0, static_cast<float>(srcImage.rows - 1 ));
+
+	dstTriangle[0] = Point2f( static_cast<float>(srcImage.cols*0.0), static_cast<float>(srcImage.rows*0.33));
+	dstTriangle[1] = Point2f( static_cast<float>(srcImage.cols*0.65), static_cast<float>(srcImage.rows*0.35));
+	dstTriangle[2] = Point2f( static_cast<float>(srcImage.cols*0.15), static_cast<float>(srcImage.rows*0.6));
+
+	//【4】求得仿射变换
+	warpMat = getAffineTransform( srcTriangle, dstTriangle );
+
+	//【5】对源图像应用刚刚求得的仿射变换
+	warpAffine( srcImage, dstImage_warp, warpMat, dstImage_warp.size() );
+
+	//【6】对图像进行缩放后再旋转
+	// 计算绕图像中点顺时针旋转50度缩放因子为0.6的旋转矩阵
+	Point center = Point( dstImage_warp.cols/2, dstImage_warp.rows/2 );
+	double angle = -50.0;
+	double scale = 0.6;
+	// 通过上面的旋转细节信息求得旋转矩阵
+	rotMat = getRotationMatrix2D( center, angle, scale );
+	// 旋转已缩放后的图像
+	warpAffine( dstImage_warp, dstImage_warp_rotate, rotMat, dstImage_warp.size() );
+
+
+	//【7】显示结果
+	imshow( WINDOW_NAME1, srcImage );
+	imshow( WINDOW_NAME2, dstImage_warp );
+	imshow( WINDOW_NAME3, dstImage_warp_rotate );
+
+	// 等待用户按任意按键退出程序
+	waitKey(0);
+
+	return 0;
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------  
+//      描述：输出一些帮助信息  
+//----------------------------------------------------------------------------------------------  
+static void ShowHelpText()  
+{  
+
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第67个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息  
+	printf(   "\n\n\t\t欢迎来到仿射变换综合示例程序\n\n");  
+	printf(  "\t\t键盘按键【ESC】- 退出程序\n"  );  
+}  
+
+
+```
+
+![yang](./photo/67.png)
+![yang](./photo/68.png)
+#### 10.直方图均衡化
+```
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+using namespace cv;
+
+
+//--------------------------------------【main( )函数】-----------------------------------------
+//          描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	// 【1】加载源图像
+	Mat srcImage, dstImage;
+	srcImage = imread( "1.jpg", 1 );
+	if(!srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定图片存在~！ \n"); return false; } 
+
+	// 【2】转为灰度图并显示出来
+	cvtColor( srcImage, srcImage, COLOR_BGR2GRAY );
+	imshow( "原始图", srcImage );
+
+	// 【3】进行直方图均衡化
+	equalizeHist( srcImage, dstImage );
+
+	// 【4】显示结果
+	imshow( "经过直方图均衡化后的图", dstImage );
+
+	// 等待用户按键退出程序
+	waitKey(0);
+	return 0;
+
+}
+```
+
+
+![yang](./photo/69.png)
+![yang](./photo/70.png)
+
+### 笔记部分
+1. Mat srcImage1=srcImage.clone(); //使用函数clone() 复制一幅图像的矩阵
+
+2.  dstImage.create( srcImage1.size(),srcImage1.type() ); // 【1】创建与src同类型和大小的矩阵(dst)
+
+3.  cvtColor( srcImage1, grayImage, CV_BGR2GRAY ); // 【2】将原图像转换为灰度图像
+
+4.  dstImage = Scalar::all(0);//【5】将g_dstImage内的所有元素设置为0
+
+5.Canny边缘检测：Canny()函数    P250
+
+6.sobel算子           P253
+
+7.Laplacian算子      P256
+
+8.convertScaleAbs（）函数 用线性变换转换输入数组元素成8位无符号整型
+
+9.scharr滤波器
+
+主要是陪着Sobel算子的运算而存在
+
+10. 霍夫变换（HoughTransform）
+
+它是图像处理中的一种特征提取技术，该过程在一个参数空间中通过计算累计结果的局部最大值得到一个符合该特定形状的集合作为霍夫变换的结果。
+
+优点：
+
+分割结果Robustness，对数据的不完全或者噪声不是非常敏感。
+
+11. 霍夫变换运用两个坐标空间之间的变换将在一个空间中具有相同形状的曲线或直线映射到另一个坐标空间的一个点上形成峰值，从而把检测任意形状的问题转化为统计峰值问题。
+
+12. 在使用霍夫变换之前，首先要对图像进行边缘检测处理，即霍夫变换的直接输入只能是边缘的二值图像。
+
+23.OpenCV支持三种不同的霍夫线变换：
+
+标准霍夫变换（StandardHough Transform, SHT）;
+
+多尺度霍夫变换（Multi-ScaleHough Transform, MSHT）;
+
+累计概率霍夫变换（ProgressiveProbabilistic Hough Transform, PPHT）.
+
+24.HoughLines函数用来调用标准霍夫变换（SHT）和多尺度霍夫变换（MSHT）。
+
+25. HoughLinesP函数调用累计概率霍夫变换（PPHT）。PPHT执行效率很高，相比于HoughLines,更倾向于HoughLinesP函数。
+
+ 
+
+ 
+
+26. 霍夫线变换的原理 P268
+
+（1）一条直线在图像二维空间，可由两个变量表示
+
+笛卡尔坐标系：用斜率和截距
+
+极坐标系：用极径和极角
+
+对于霍夫变换采用极坐标系来表示直线。
+
+（2）对于一个点（x,y），每一对的极坐标系的参数，极径和极角，代表一条通过（x,y）的直线。
+
+（3）对于一个定点（x,y），在极坐标下，对极径极角绘制出所有通过（x,y）的直线，得到的是一条正弦曲线。
+
+（4）如果两个不同的点进行上述操作，得到的曲线在平面θ-r相交，则意味着它们通过同一条直线。
+
+（5）一条直线可以通过在平面θ-r寻找交于一点的曲线数量来检测；越多的曲线交于一点，意味着这个交点表示的直线由更多的点组成。一般，可以设置直线上的点的阈值来定义多少条曲线交于一点，这样才认为检测到了一条直线。
+
+（6）霍夫变换要做的就是追踪图像中每个点对应曲线间的角点，若交于一点的曲线数量超过了阈值，则可认为这个角点所代表的参数对（θ，rθ）为原图像中的一条直线。
+
+27. 霍夫圆变换HoughCircles()函数
+
+28. 重映射  remap() 函数
+
+29. 放射变换：wrapAffine()函数
+
+30. 求得仿射变换：
+
+warpMat=getAffineTransform(srcTriangle,dstTriangle);
+
+31. 计算二维旋转变换矩阵：getRotationMatrix2D()函数
+
+32. 直方图均衡化：equalizeHist()函数
+
+## 第八章 图像轮廓与图像分割修复
+### 实验部分
+#### 1.轮廓查找基础
+```
+
+
+#include <opencv2/opencv.hpp>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+using namespace cv;
+using namespace std;
+
+//-----------------------------------【main( )函数】--------------------------------------------
+
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始
+//-------------------------------------------------------------------------------------------------
+int main( int argc, char** argv )
+{
+	// 【1】载入原始图，且必须以二值图模式载入
+	Mat srcImage=imread("1.jpg", 0);
+	imshow("原始图",srcImage);
+
+	//【2】初始化结果图
+	Mat dstImage = Mat::zeros(srcImage.rows, srcImage.cols, CV_8UC3);
+
+	//【3】srcImage取大于阈值119的那部分
+	srcImage = srcImage > 119;
+	imshow( "取阈值后的原始图", srcImage );
+
+	//【4】定义轮廓和层次结构
+	vector<vector<Point> > contours;
+	vector<Vec4i> hierarchy;
+
+	//【5】查找轮廓
+	//此句代码的OpenCV2版为：
+	//findContours( srcImage, contours, hierarchy,CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
+	//此句代码的OpenCV3版为：
+	findContours( srcImage, contours, hierarchy,RETR_CCOMP, CHAIN_APPROX_SIMPLE );
+
+	// 【6】遍历所有顶层的轮廓， 以随机颜色绘制出每个连接组件颜色
+	int index = 0;
+	for( ; index >= 0; index = hierarchy[index][0] )
+	{
+		Scalar color( rand()&255, rand()&255, rand()&255 );
+		//此句代码的OpenCV2版为：
+		//drawContours( dstImage, contours, index, color, CV_FILLED, 8, hierarchy );
+		//此句代码的OpenCV3版为：
+		drawContours( dstImage, contours, index, color, FILLED, 8, hierarchy );
+	}
+
+	//【7】显示最后的轮廓图
+	imshow( "轮廓图", dstImage );
+
+	waitKey(0);
+
+}
+```
+
+![yang](./photo/71.png)
+![yang](./photo/72.png)
+
+#### 2.查找并绘制轮廓综合示例
+```
+
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//		描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME1 "【原始图窗口】"			//为窗口标题定义的宏 
+#define WINDOW_NAME2 "【轮廓图】"					//为窗口标题定义的宏 
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//		描述：全局变量的声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage; 
+Mat g_grayImage;
+int g_nThresh = 80;
+int g_nThresh_max = 255;
+RNG g_rng(12345);
+Mat g_cannyMat_output;
+vector<vector<Point>> g_vContours;
+vector<Vec4i> g_vHierarchy;
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数的声明
+//-----------------------------------------------------------------------------------------------
+static void ShowHelpText( );
+void on_ThreshChange(int, void* );
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( int argc, char** argv )
+{
+	//【0】改变console字体颜色
+	system("color 1F"); 
+
+	//【0】显示欢迎和帮助文字
+	ShowHelpText( );
+
+	// 加载源图像
+	g_srcImage = imread( "1.jpg", 1 );
+	if(!g_srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定的图片存在~！ \n"); return false; } 
+
+	// 转成灰度并模糊化降噪
+	cvtColor( g_srcImage, g_grayImage, COLOR_BGR2GRAY );
+	blur( g_grayImage, g_grayImage, Size(3,3) );
+
+	// 创建窗口
+	namedWindow( WINDOW_NAME1, WINDOW_AUTOSIZE );
+	imshow( WINDOW_NAME1, g_srcImage );
+
+	//创建滚动条并初始化
+	createTrackbar( "canny阈值", WINDOW_NAME1, &g_nThresh, g_nThresh_max, on_ThreshChange );
+	on_ThreshChange( 0, 0 );
+
+	waitKey(0);
+	return(0);
+}
+
+//-----------------------------------【on_ThreshChange( )函数】------------------------------  
+//      描述：回调函数
+//----------------------------------------------------------------------------------------------  
+void on_ThreshChange(int, void* )
+{
+
+	// 用Canny算子检测边缘
+	Canny( g_grayImage, g_cannyMat_output, g_nThresh, g_nThresh*2, 3 );
+
+	// 寻找轮廓
+	findContours( g_cannyMat_output, g_vContours, g_vHierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+	// 绘出轮廓
+	Mat drawing = Mat::zeros( g_cannyMat_output.size(), CV_8UC3 );
+	for( int i = 0; i< g_vContours.size(); i++ )
+	{
+		Scalar color = Scalar( g_rng.uniform(0, 255), g_rng.uniform(0,255), g_rng.uniform(0,255) );//任意值
+		drawContours( drawing, g_vContours, i, color, 2, 8, g_vHierarchy, 0, Point() );
+	}
+
+	// 显示效果图
+	imshow( WINDOW_NAME2, drawing );
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------  
+//      描述：输出一些帮助信息  
+//----------------------------------------------------------------------------------------------  
+static void ShowHelpText()  
+{  
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第70个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息  
+	printf(   "\n\n\t欢迎来到【在图形中寻找轮廓】示例程序~\n\n");  
+	printf(   "\n\n\t按键操作说明: \n\n"  
+		"\t\t键盘按键任意键- 退出程序\n\n"  
+		"\t\t滑动滚动条-改变阈值\n" );  
+}  
+
+```
+![yang](./photo/73.png)
+![yang](./photo/74.png)
+
+#### 3.寻找绘制物体的凸包
+```
+
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//  描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME1 "【原始图窗口】"					//为窗口标题定义的宏 
+#define WINDOW_NAME2 "【效果图窗口】"					//为窗口标题定义的宏 
+
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//  描述：全局变量的声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage; Mat g_grayImage;
+int g_nThresh = 50;
+int g_maxThresh = 255;
+RNG g_rng(12345);
+Mat srcImage_copy = g_srcImage.clone();
+Mat g_thresholdImage_output;
+vector<vector<Point> > g_vContours;
+vector<Vec4i> g_vHierarchy;
+
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//   描述：全局函数的声明
+//-----------------------------------------------------------------------------------------------
+static void ShowHelpText( );
+void on_ThreshChange(int, void* );
+void ShowHelpText();
+
+//-----------------------------------【main( )函数】------------------------------------------
+//   描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main(  )
+{
+	system("color 3F");
+	ShowHelpText();
+
+	// 加载源图像
+	g_srcImage = imread( "1.jpg", 1 );
+
+	// 将原图转换成灰度图并进行模糊降
+	cvtColor( g_srcImage, g_grayImage, COLOR_BGR2GRAY );
+	blur( g_grayImage, g_grayImage, Size(3,3) );
+
+	// 创建原图窗口并显示
+	namedWindow( WINDOW_NAME1, WINDOW_AUTOSIZE );
+	imshow( WINDOW_NAME1, g_srcImage );
+
+	//创建滚动条
+	createTrackbar( " 阈值:", WINDOW_NAME1, &g_nThresh, g_maxThresh, on_ThreshChange );
+	on_ThreshChange( 0, 0 );//调用一次进行初始化
+
+	waitKey(0);
+	return(0);
+}
+
+//-----------------------------------【thresh_callback( )函数】----------------------------------  
+//      描述：回调函数
+//----------------------------------------------------------------------------------------------  
+void on_ThreshChange(int, void* )
+{
+	// 对图像进行二值化，控制阈值
+	threshold( g_grayImage, g_thresholdImage_output, g_nThresh, 255, THRESH_BINARY );
+
+	// 寻找轮廓
+	findContours( g_thresholdImage_output, g_vContours, g_vHierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+	// 遍历每个轮廓，寻找其凸包
+	vector<vector<Point> >hull( g_vContours.size() );
+	for( unsigned int i = 0; i < g_vContours.size(); i++ )
+	{  
+		convexHull( Mat(g_vContours[i]), hull[i], false );
+	}
+
+	// 绘出轮廓及其凸包
+	Mat drawing = Mat::zeros( g_thresholdImage_output.size(), CV_8UC3 );
+	for(unsigned  int i = 0; i< g_vContours.size(); i++ )
+	{
+		Scalar color = Scalar( g_rng.uniform(0, 255), g_rng.uniform(0,255), g_rng.uniform(0,255) );
+		drawContours( drawing, g_vContours, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+		drawContours( drawing, hull, i, color, 1, 8, vector<Vec4i>(), 0, Point() );
+	}
+
+	// 显示效果图
+	imshow( WINDOW_NAME2, drawing );
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】-----------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第72个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+
+```
+![yang](./photo/75.png)
+![yang](./photo/76.png)
+
+#### 4.创建包围轮廓的矩形和圆形框
+```
+
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+using namespace cv;
+using namespace std;
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//  描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME1 "【原始图窗口】"        //为窗口标题定义的宏 
+#define WINDOW_NAME2 "【效果图窗口】"        //为窗口标题定义的宏 
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//  描述：全局变量的声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage;
+Mat g_grayImage;
+int g_nThresh = 50;//阈值
+int g_nMaxThresh = 255;//阈值最大值
+RNG g_rng(12345);//随机数生成器
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//   描述：全局函数的声明
+//-----------------------------------------------------------------------------------------------
+void on_ContoursChange(int, void* );
+static void ShowHelpText( );
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//   描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//【0】改变console字体颜色
+	system("color 1F"); 
+
+	//【0】显示欢迎和帮助文字
+	ShowHelpText( );
+
+	//【1】载入3通道的原图像
+	g_srcImage = imread( "1.jpg", 1 );
+	if(!g_srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定的图片存在~！ \n"); return false; }  
+
+	//【2】得到原图的灰度图像并进行平滑
+	cvtColor( g_srcImage, g_grayImage, COLOR_BGR2GRAY );
+	blur( g_grayImage, g_grayImage, Size(3,3) );
+
+	//【3】创建原始图窗口并显示
+	namedWindow( WINDOW_NAME1, WINDOW_AUTOSIZE );
+	imshow( WINDOW_NAME1, g_srcImage );
+
+	//【4】设置滚动条并调用一次回调函数
+	createTrackbar( " 阈值:", WINDOW_NAME1, &g_nThresh, g_nMaxThresh, on_ContoursChange );
+	on_ContoursChange( 0, 0 );
+
+	waitKey(0);
+
+	return(0);
+}
+
+//----------------------------【on_ContoursChange( )函数】---------------------------------
+//      描述：回调函数
+//-------------------------------------------------------------------------------------------------  
+void on_ContoursChange(int, void* )
+{
+	//定义一些参数
+	Mat threshold_output;
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+
+	// 使用Threshold检测边缘
+	threshold( g_grayImage, threshold_output, g_nThresh, 255, THRESH_BINARY );
+
+	// 找出轮廓
+	findContours( threshold_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+	// 多边形逼近轮廓 + 获取矩形和圆形边界框
+	vector<vector<Point> > contours_poly( contours.size() );
+	vector<Rect> boundRect( contours.size() );
+	vector<Point2f>center( contours.size() );
+	vector<float>radius( contours.size() );
+
+	//一个循环，遍历所有部分，进行本程序最核心的操作
+	for( unsigned int i = 0; i < contours.size(); i++ )
+	{ 
+		approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );//用指定精度逼近多边形曲线 
+		boundRect[i] = boundingRect( Mat(contours_poly[i]) );//计算点集的最外面（up-right）矩形边界
+		minEnclosingCircle( contours_poly[i], center[i], radius[i] );//对给定的 2D点集，寻找最小面积的包围圆形 
+	}
+
+	// 绘制多边形轮廓 + 包围的矩形框 + 圆形框
+	Mat drawing = Mat::zeros( threshold_output.size(), CV_8UC3 );
+	for( int unsigned i = 0; i<contours.size( ); i++ )
+	{
+		Scalar color = Scalar( g_rng.uniform(0, 255), g_rng.uniform(0,255), g_rng.uniform(0,255) );//随机设置颜色
+		drawContours( drawing, contours_poly, i, color, 1, 8, vector<Vec4i>(), 0, Point() );//绘制轮廓
+		rectangle( drawing, boundRect[i].tl(), boundRect[i].br(), color, 2, 8, 0 );//绘制矩形
+		circle( drawing, center[i], (int)radius[i], color, 2, 8, 0 );//绘制圆
+	}
+
+	// 显示效果图窗口
+	namedWindow( WINDOW_NAME2, WINDOW_AUTOSIZE );
+	imshow( WINDOW_NAME2, drawing );
+}
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------  
+//      描述：输出一些帮助信息  
+//----------------------------------------------------------------------------------------------  
+static void ShowHelpText()  
+{  
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第75个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息  
+	printf("\n\n\n\t欢迎来到【创建包围轮廓的矩形和圆形边界框】示例程序~\n\n");  
+	printf( "\n\n\t按键操作说明: \n\n"  
+		"\t\t键盘按键【ESC】- 退出程序\n\n"  
+		"\t\t滑动滚动条 - 改变阈值\n\n");  
+}  
+
+
+```
+![yang](./photo/77.png)
+![yang](./photo/78.png)
+
+#### 5.查找和绘制图片轮廓矩
+```
+
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//		描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME1 "【原始图】"					//为窗口标题定义的宏 
+#define WINDOW_NAME2 "【图像轮廓】"        //为窗口标题定义的宏 
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//		描述：全局变量的声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage; Mat g_grayImage;
+int g_nThresh = 100;
+int g_nMaxThresh = 255;
+RNG g_rng(12345);
+Mat g_cannyMat_output;
+vector<vector<Point> > g_vContours;
+vector<Vec4i> g_vHierarchy;
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//		描述：全局变量的声明
+//-----------------------------------------------------------------------------------------------
+void on_ThreshChange(int, void* );
+static void ShowHelpText( );
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( int argc, char** argv )
+{
+	//【0】改变console字体颜色
+	system("color 9F"); 
+
+	ShowHelpText();
+	// 读入原图像, 返回3通道图像数据
+	g_srcImage = imread( "1.jpg", 1 );
+
+	// 把原图像转化成灰度图像并进行平滑
+	cvtColor( g_srcImage, g_grayImage, COLOR_BGR2GRAY );
+	blur( g_grayImage, g_grayImage, Size(3,3) );
+
+	// 创建新窗口
+	namedWindow( WINDOW_NAME1, WINDOW_AUTOSIZE );
+	imshow( WINDOW_NAME1, g_srcImage );
+
+	//创建滚动条并进行初始化
+	createTrackbar( " 阈值", WINDOW_NAME1, &g_nThresh, g_nMaxThresh, on_ThreshChange );
+	on_ThreshChange( 0, 0 );
+
+	waitKey(0);
+	return(0);
+}
+
+//-----------------------------------【on_ThreshChange( )函数】-------------------------------
+//		描述：回调函数
+//-----------------------------------------------------------------------------------------------
+void on_ThreshChange(int, void* )
+{
+	// 使用Canndy检测边缘
+	Canny( g_grayImage, g_cannyMat_output, g_nThresh, g_nThresh*2, 3 );
+
+	// 找到轮廓
+	findContours( g_cannyMat_output, g_vContours, g_vHierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+	// 计算矩
+	vector<Moments> mu(g_vContours.size() );
+	for(unsigned int i = 0; i < g_vContours.size(); i++ )
+	{ mu[i] = moments( g_vContours[i], false ); }
+
+	//  计算中心矩
+	vector<Point2f> mc( g_vContours.size() );
+	for( unsigned int i = 0; i < g_vContours.size(); i++ )
+	{ mc[i] = Point2f( static_cast<float>(mu[i].m10/mu[i].m00), static_cast<float>(mu[i].m01/mu[i].m00 )); }
+
+	// 绘制轮廓
+	Mat drawing = Mat::zeros( g_cannyMat_output.size(), CV_8UC3 );
+	for( unsigned int i = 0; i< g_vContours.size(); i++ )
+	{
+		Scalar color = Scalar( g_rng.uniform(0, 255), g_rng.uniform(0,255), g_rng.uniform(0,255) );//随机生成颜色值
+		drawContours( drawing, g_vContours, i, color, 2, 8, g_vHierarchy, 0, Point() );//绘制外层和内层轮廓
+		circle( drawing, mc[i], 4, color, -1, 8, 0 );;//绘制圆
+	}
+
+	// 显示到窗口中
+	namedWindow( WINDOW_NAME2, WINDOW_AUTOSIZE );
+	imshow( WINDOW_NAME2, drawing );
+
+	// 通过m00计算轮廓面积并且和OpenCV函数比较
+	printf("\t 输出内容: 面积和轮廓长度\n");
+	for(unsigned  int i = 0; i< g_vContours.size(); i++ )
+	{
+		printf(" >通过m00计算出轮廓[%d]的面积: (M_00) = %.2f \n OpenCV函数计算出的面积=%.2f , 长度: %.2f \n\n", i, mu[i].m00, contourArea(g_vContours[i]), arcLength( g_vContours[i], true ) );
+		Scalar color = Scalar( g_rng.uniform(0, 255), g_rng.uniform(0,255), g_rng.uniform(0,255) );
+		drawContours( drawing, g_vContours, i, color, 2, 8, g_vHierarchy, 0, Point() );
+		circle( drawing, mc[i], 4, color, -1, 8, 0 );
+	}
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】-----------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第76个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+```
+![yang](./photo/79.png)
+![yang](./photo/80.png)
+
+#### 6.分水岭算法
+```
+
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//  描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME1 "【程序窗口1】"        //为窗口标题定义的宏 
+#define WINDOW_NAME2 "【分水岭算法效果图】"        //为窗口标题定义的宏
+
+//-----------------------------------【全局函变量声明部分】--------------------------------------
+//		描述：全局变量的声明
+//-----------------------------------------------------------------------------------------------
+Mat g_maskImage, g_srcImage;
+Point prevPt(-1, -1);
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//		描述：全局函数的声明
+//-----------------------------------------------------------------------------------------------
+static void ShowHelpText();
+static void on_Mouse( int event, int x, int y, int flags, void* );
+
+
+//-----------------------------------【main( )函数】--------------------------------------------
+//		描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( int argc, char** argv )
+{	
+	//【0】改变console字体颜色
+	system("color 6F"); 
+
+	//【0】显示帮助文字
+	ShowHelpText( );
+
+	//【1】载入原图并显示，初始化掩膜和灰度图
+	g_srcImage = imread("1.jpg", 1);
+	imshow( WINDOW_NAME1, g_srcImage );
+	Mat srcImage,grayImage;
+	g_srcImage.copyTo(srcImage);
+	cvtColor(g_srcImage, g_maskImage, COLOR_BGR2GRAY);
+	cvtColor(g_maskImage, grayImage, COLOR_GRAY2BGR);
+	g_maskImage = Scalar::all(0);
+
+	//【2】设置鼠标回调函数
+	setMouseCallback( WINDOW_NAME1, on_Mouse, 0 );
+
+	//【3】轮询按键，进行处理
+	while(1)
+	{
+		//获取键值
+		int c = waitKey(0);
+
+		//若按键键值为ESC时，退出
+		if( (char)c == 27 )
+			break;
+
+		//按键键值为2时，恢复源图
+		if( (char)c == '2' )
+		{
+			g_maskImage = Scalar::all(0);
+			srcImage.copyTo(g_srcImage);
+			imshow( "image", g_srcImage );
+		}
+
+		//若检测到按键值为1或者空格，则进行处理
+		if( (char)c == '1' || (char)c == ' ' )
+		{
+			//定义一些参数
+			int i, j, compCount = 0;
+			vector<vector<Point> > contours;
+			vector<Vec4i> hierarchy;
+
+			//寻找轮廓
+			findContours(g_maskImage, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
+
+			//轮廓为空时的处理
+			if( contours.empty() )
+				continue;
+
+			//拷贝掩膜
+			Mat maskImage(g_maskImage.size(), CV_32S);
+			maskImage = Scalar::all(0);
+
+			//循环绘制出轮廓
+			for( int index = 0; index >= 0; index = hierarchy[index][0], compCount++ )
+				drawContours(maskImage, contours, index, Scalar::all(compCount+1), -1, 8, hierarchy, INT_MAX);
+
+			//compCount为零时的处理
+			if( compCount == 0 )
+				continue;
+
+			//生成随机颜色
+			vector<Vec3b> colorTab;
+			for( i = 0; i < compCount; i++ )
+			{
+				int b = theRNG().uniform(0, 255);
+				int g = theRNG().uniform(0, 255);
+				int r = theRNG().uniform(0, 255);
+
+				colorTab.push_back(Vec3b((uchar)b, (uchar)g, (uchar)r));
+			}
+
+			//计算处理时间并输出到窗口中
+			double dTime = (double)getTickCount();
+			watershed( srcImage, maskImage );
+			dTime = (double)getTickCount() - dTime;
+			printf( "\t处理时间 = %gms\n", dTime*1000./getTickFrequency() );
+
+			//双层循环，将分水岭图像遍历存入watershedImage中
+			Mat watershedImage(maskImage.size(), CV_8UC3);
+			for( i = 0; i < maskImage.rows; i++ )
+				for( j = 0; j < maskImage.cols; j++ )
+				{
+					int index = maskImage.at<int>(i,j);
+					if( index == -1 )
+						watershedImage.at<Vec3b>(i,j) = Vec3b(255,255,255);
+					else if( index <= 0 || index > compCount )
+						watershedImage.at<Vec3b>(i,j) = Vec3b(0,0,0);
+					else
+						watershedImage.at<Vec3b>(i,j) = colorTab[index - 1];
+				}
+
+				//混合灰度图和分水岭效果图并显示最终的窗口
+				watershedImage = watershedImage*0.5 + grayImage*0.5;
+				imshow( WINDOW_NAME2, watershedImage );
+		}
+	}
+
+	return 0;
+}
+
+
+//-----------------------------------【onMouse( )函数】---------------------------------------
+//		描述：鼠标消息回调函数
+//-----------------------------------------------------------------------------------------------
+static void on_Mouse( int event, int x, int y, int flags, void* )
+{
+	//处理鼠标不在窗口中的情况
+	if( x < 0 || x >= g_srcImage.cols || y < 0 || y >= g_srcImage.rows )
+		return;
+
+	//处理鼠标左键相关消息
+	if( event == EVENT_LBUTTONUP || !(flags & EVENT_FLAG_LBUTTON) )
+		prevPt = Point(-1,-1);
+	else if( event == EVENT_LBUTTONDOWN )
+		prevPt = Point(x,y);
+
+	//鼠标左键按下并移动，绘制出白色线条
+	else if( event == EVENT_MOUSEMOVE && (flags & EVENT_FLAG_LBUTTON) )
+	{
+		Point pt(x, y);
+		if( prevPt.x < 0 )
+			prevPt = pt;
+		line( g_maskImage, prevPt, pt, Scalar::all(255), 5, 8, 0 );
+		line( g_srcImage, prevPt, pt, Scalar::all(255), 5, 8, 0 );
+		prevPt = pt;
+		imshow(WINDOW_NAME1, g_srcImage);
+	}
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------  
+//      描述：输出一些帮助信息  
+//----------------------------------------------------------------------------------------------  
+static void ShowHelpText()  
+{  
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第77个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息  
+	printf(  "\n\n\n\t欢迎来到【分水岭算法】示例程序~\n\n");  
+	printf(  "\t请先用鼠标在图片窗口中标记出大致的区域，\n\n\t然后再按键【1】或者【SPACE】启动算法。"
+		"\n\n\t按键操作说明: \n\n"  
+		"\t\t键盘按键【1】或者【SPACE】- 运行的分水岭分割算法\n"  
+		"\t\t键盘按键【2】- 恢复原始图片\n"  
+		"\t\t键盘按键【ESC】- 退出程序\n\n\n");  
+}  
+
+```
+![yang](./photo/81.png)
+![yang](./photo/82.png)
+
+#### 7.图像修补
+```
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/photo/photo.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//  描述：定义一些辅助宏 
+//----------------------------------------------------------------------------------------------
+#define WINDOW_NAME0 "【原始图参考】"        //为窗口标题定义的宏 
+#define WINDOW_NAME1 "【原始图】"        //为窗口标题定义的宏 
+#define WINDOW_NAME2 "【修补后的效果图】"        //为窗口标题定义的宏 
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//          描述：全局变量声明
+//-----------------------------------------------------------------------------------------------
+Mat srcImage0,srcImage1, inpaintMask;
+Point previousPoint(-1,-1);//原来的点坐标
+
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------
+//          描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+static void ShowHelpText( )
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第78个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息
+	printf("\n\n\n\t欢迎来到【图像修复】示例程序~\n"); 
+	printf(  "\n\t请在进行图像修复操作之前，在【原始图】窗口中进行适量的绘制" 
+		"\n\n\t按键操作说明: \n\n" 
+		"\t\t【鼠标左键】-在图像上绘制白色线条\n\n"
+		"\t\t键盘按键【ESC】- 退出程序\n\n" 
+		"\t\t键盘按键【1】或【SPACE】-进行图像修复操作 \n\n"   );  
+}
+
+
+//-----------------------------------【On_Mouse( )函数】--------------------------------
+//          描述：响应鼠标消息的回调函数
+//----------------------------------------------------------------------------------------------
+static void On_Mouse( int event, int x, int y, int flags, void* )
+{
+	//鼠标左键弹起消息
+	if( event == EVENT_LBUTTONUP || !(flags & EVENT_FLAG_LBUTTON) )
+		previousPoint = Point(-1,-1);
+	//鼠标左键按下消息
+	else if( event == EVENT_LBUTTONDOWN )
+		previousPoint = Point(x,y);
+	//鼠标按下并移动，进行绘制
+	else if( event == EVENT_MOUSEMOVE && (flags & EVENT_FLAG_LBUTTON) )
+	{
+		Point pt(x,y);
+		if( previousPoint.x < 0 )
+			previousPoint = pt;
+		//绘制白色线条
+		line( inpaintMask, previousPoint, pt, Scalar::all(255), 5, 8, 0 );
+		line( srcImage1, previousPoint, pt, Scalar::all(255), 5, 8, 0 );
+		previousPoint = pt;
+		imshow(WINDOW_NAME1, srcImage1);
+	}
+}
+
+
+//--------------------------------------【main( )函数】-----------------------------------------
+//          描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( int argc, char** argv )
+{
+	//改变console字体颜色
+	system("color 2F"); 
+
+	//显示帮助文字
+	ShowHelpText();
+
+	//载入原始图并进行掩膜的初始化
+	Mat srcImage = imread("1.jpg", -1);
+	if(!srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定图片存在~！ \n"); return false; } 
+	srcImage0 = srcImage.clone();
+	srcImage1 = srcImage.clone();
+	inpaintMask = Mat::zeros(srcImage1.size(), CV_8U);
+
+	//显示原始图参考
+	imshow(WINDOW_NAME0, srcImage0);
+	//显示原始图
+	imshow(WINDOW_NAME1, srcImage1);
+	//设置鼠标回调消息
+	setMouseCallback( WINDOW_NAME1, On_Mouse, 0 );
+
+	//轮询按键，根据不同的按键进行处理
+	while (1)
+	{
+		//获取按键键值
+		char c = (char)waitKey();
+
+		//键值为ESC，程序退出
+		if( c == 27 )
+			break;
+
+		//键值为2，恢复成原始图像
+		if( c == '2' )
+		{
+			inpaintMask = Scalar::all(0);
+			srcImage.copyTo(srcImage1);
+			imshow(WINDOW_NAME1, srcImage1);
+		}
+
+		//键值为1或者空格，进行图像修补操作
+		if( c == '1' || c == ' ' )
+		{
+			Mat inpaintedImage;
+			inpaint(srcImage1, inpaintMask, inpaintedImage, 3, INPAINT_TELEA);
+			imshow(WINDOW_NAME2, inpaintedImage);
+		}
+	}
+
+	return 0;
+}
+
+```
+![yang](./photo/83.png)
+![yang](./photo/84.png)
+### 笔记部分
+
+1 寻找轮廓：findContours()函数
+
+2. 绘制轮廓drawContours()函数
+
+3. 寻找凸包：convexHull()函数
+4.借用百度百科的解释：凸包（Convex Hull）是一个计算几何（图形学）中的概念。在一个实数向量空间V中，对于给定集合X，所有包含X的凸集的交集S被称为X的凸包。X的凸包可以用X内所有点(X1，…Xn)的凸组合来构造。在二维欧几里得空间中，凸包可想象为一条刚好包著所有点的橡皮圈。用不严谨的话来讲，给定二维平面上的点集，凸包就是将最外层的点连接起来构成的凸多边形，它能包含点集中所有的点。
+“寻找凸包”的库函数
+void convexHull(InputArray points,OutputArray hull,bool clockwise = false,bool returnPoints = true)
+
+InputArray points: 得到的点集，一般是用图像轮廓函数求得的轮廓点，Mat类型或者std::vector
+OutputArray hull: 输出的是凸包的二维xy点的坐标值，针对每一个轮廓形成的
+bool clockwise = false: 表示凸包的方向，顺时针或者逆时针
+bool returnPoint = true: 表示返回点还是点地址的索引
+
+5. 使用多边形将轮廓包围
+
+返回外部矩形边界：boundingRect()函数
+
+寻找最小包围矩形：minAreaRect()函数
+
+寻找最小包围圆形：minEnclosingCircle()函数
+
+用椭圆拟合二维点集：fitEllipse()函数
+
+逼近多边形曲线：approxPolyDP()函数
+
+6. 图像的矩
+
+矩的计算：moments()函数
+
+计算轮廓面积：contourArea()函数
+
+计算轮廓长度：arcLength()函数
+
+7. 分水岭算法：watershed()函数
+
+8. 图像修补：inpaint()函数
+
+## 第九章 直方图与匹配
+### 实验部分
+#### 1.H-S二维直方图绘制
+```
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+using namespace cv;
+
+
+
+//-----------------------------------【ShowHelpText( )函数】-----------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第79个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+
+
+//--------------------------------------【main( )函数】-----------------------------------------
+//          描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+
+	//【1】载入源图，转化为HSV颜色模型
+	Mat srcImage, hsvImage;
+	srcImage=imread("1.jpg");
+	cvtColor(srcImage,hsvImage, COLOR_BGR2HSV);
+
+	system("color 2F");
+	ShowHelpText();
+
+	//【2】参数准备
+	//将色调量化为30个等级，将饱和度量化为32个等级
+	int hueBinNum = 30;//色调的直方图直条数量
+	int saturationBinNum = 32;//饱和度的直方图直条数量
+	int histSize[ ] = {hueBinNum, saturationBinNum};
+	// 定义色调的变化范围为0到179
+	float hueRanges[] = { 0, 180 };
+	//定义饱和度的变化范围为0（黑、白、灰）到255（纯光谱颜色）
+	float saturationRanges[] = { 0, 256 };
+	const float* ranges[] = { hueRanges, saturationRanges };
+	MatND dstHist;
+	//参数准备，calcHist函数中将计算第0通道和第1通道的直方图
+	int channels[] = {0, 1};
+
+	//【3】正式调用calcHist，进行直方图计算
+	calcHist( &hsvImage,//输入的数组
+		1, //数组个数为1
+		channels,//通道索引
+		Mat(), //不使用掩膜
+		dstHist, //输出的目标直方图
+		2, //需要计算的直方图的维度为2
+		histSize, //存放每个维度的直方图尺寸的数组
+		ranges,//每一维数值的取值范围数组
+		true, // 指示直方图是否均匀的标识符，true表示均匀的直方图
+		false );//累计标识符，false表示直方图在配置阶段会被清零
+
+	//【4】为绘制直方图准备参数
+	double maxValue=0;//最大值
+	minMaxLoc(dstHist, 0, &maxValue, 0, 0);//查找数组和子数组的全局最小值和最大值存入maxValue中
+	int scale = 10;
+	Mat histImg = Mat::zeros(saturationBinNum*scale, hueBinNum*10, CV_8UC3);
+
+	//【5】双层循环，进行直方图绘制
+	for( int hue = 0; hue < hueBinNum; hue++ )
+		for( int saturation = 0; saturation < saturationBinNum; saturation++ )
+		{
+			float binValue = dstHist.at<float>(hue, saturation);//直方图组距的值
+			int intensity = cvRound(binValue*255/maxValue);//强度
+
+			//正式进行绘制
+			rectangle( histImg, Point(hue*scale, saturation*scale),
+				Point( (hue+1)*scale - 1, (saturation+1)*scale - 1),
+				Scalar::all(intensity),FILLED );
+		}
+
+		//【6】显示效果图
+		imshow( "素材图", srcImage );
+		imshow( "H-S 直方图", histImg );
+
+		waitKey();
+}
+```
+
+![yang](./photo/85.png)
+![yang](./photo/86.png)
+
+#### 2.一维直方图绘制
+```
+
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+using namespace cv;
+using namespace std;
+
+
+
+//-----------------------------------【ShowHelpText( )函数】-----------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第80个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+
+
+//--------------------------------------【main( )函数】-----------------------------------------
+//          描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-------------------------------------------------------------------------------------------------
+int main()
+{
+	//【1】载入原图并显示
+	Mat srcImage = imread("1.jpg", 0);
+	imshow("原图",srcImage);
+	if(!srcImage.data) {cout << "fail to load image" << endl; 	return 0;}
+
+	system("color 1F");
+	ShowHelpText();
+
+	//【2】定义变量
+	MatND dstHist;       // 在cv中用CvHistogram *hist = cvCreateHist
+	int dims = 1;
+	float hranges[] = {0, 255};
+	const float *ranges[] = {hranges};   // 这里需要为const类型
+	int size = 256;
+	int channels = 0;
+
+	//【3】计算图像的直方图
+	calcHist(&srcImage, 1, &channels, Mat(), dstHist, dims, &size, ranges);    // cv 中是cvCalcHist
+	int scale = 1;
+
+	Mat dstImage(size * scale, size, CV_8U, Scalar(0));
+	//【4】获取最大值和最小值
+	double minValue = 0;
+	double maxValue = 0;
+	minMaxLoc(dstHist,&minValue, &maxValue, 0, 0);  //  在cv中用的是cvGetMinMaxHistValue
+
+	//【5】绘制出直方图
+	int hpt = saturate_cast<int>(0.9 * size);
+	for(int i = 0; i < 256; i++)
+	{
+		float binValue = dstHist.at<float>(i);           //   注意hist中是float类型    而在OpenCV1.0版中用cvQueryHistValue_1D
+		int realValue = saturate_cast<int>(binValue * hpt/maxValue);
+		rectangle(dstImage,Point(i*scale, size - 1), Point((i+1)*scale - 1, size - realValue), Scalar(255));
+	}
+	imshow("一维直方图", dstImage);
+	waitKey(0);
+	return 0;
+}
+```
+![yang](./photo/87.png)
+![yang](./photo/88.png)
+
+#### 3.RGB三色直方图绘制
+```
+
+#include <opencv2/opencv.hpp>  
+#include <opencv2/imgproc/imgproc.hpp>  
+using namespace cv;  
+
+
+
+//-----------------------------------【ShowHelpText( )函数】-----------------------------
+//		 描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第81个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+}
+
+
+//--------------------------------------【main( )函数】-----------------------------------------
+//          描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main(  )
+{
+
+	//【1】载入素材图并显示
+	Mat srcImage;
+	srcImage=imread("1.jpg");
+	imshow( "素材图", srcImage );
+
+	system("color 3F");
+	ShowHelpText();
+
+	//【2】参数准备
+	int bins = 256;
+	int hist_size[] = {bins};
+	float range[] = { 0, 256 };
+	const float* ranges[] = { range};
+	MatND redHist,grayHist,blueHist;
+	int channels_r[] = {0};
+
+	//【3】进行直方图的计算（红色分量部分）
+	calcHist( &srcImage, 1, channels_r, Mat(), //不使用掩膜
+		redHist, 1, hist_size, ranges,
+		true, false );
+
+	//【4】进行直方图的计算（绿色分量部分）
+	int channels_g[] = {1};
+	calcHist( &srcImage, 1, channels_g, Mat(), // do not use mask
+		grayHist, 1, hist_size, ranges,
+		true, // the histogram is uniform
+		false );
+
+	//【5】进行直方图的计算（蓝色分量部分）
+	int channels_b[] = {2};
+	calcHist( &srcImage, 1, channels_b, Mat(), // do not use mask
+		blueHist, 1, hist_size, ranges,
+		true, // the histogram is uniform
+		false );
+
+	//-----------------------绘制出三色直方图------------------------
+	//参数准备
+	double maxValue_red,maxValue_green,maxValue_blue;
+	minMaxLoc(redHist, 0, &maxValue_red, 0, 0);
+	minMaxLoc(grayHist, 0, &maxValue_green, 0, 0);
+	minMaxLoc(blueHist, 0, &maxValue_blue, 0, 0);
+	int scale = 1;
+	int histHeight=256;
+	Mat histImage = Mat::zeros(histHeight,bins*3, CV_8UC3);
+
+	//正式开始绘制
+	for(int i=0;i<bins;i++)
+	{
+		//参数准备
+		float binValue_red = redHist.at<float>(i); 
+		float binValue_green = grayHist.at<float>(i);
+		float binValue_blue = blueHist.at<float>(i);
+		int intensity_red = cvRound(binValue_red*histHeight/maxValue_red);  //要绘制的高度
+		int intensity_green = cvRound(binValue_green*histHeight/maxValue_green);  //要绘制的高度
+		int intensity_blue = cvRound(binValue_blue*histHeight/maxValue_blue);  //要绘制的高度
+
+		//绘制红色分量的直方图
+		rectangle(histImage,Point(i*scale,histHeight-1),
+			Point((i+1)*scale - 1, histHeight - intensity_red),
+			Scalar(255,0,0));
+
+		//绘制绿色分量的直方图
+		rectangle(histImage,Point((i+bins)*scale,histHeight-1),
+			Point((i+bins+1)*scale - 1, histHeight - intensity_green),
+			Scalar(0,255,0));
+
+		//绘制蓝色分量的直方图
+		rectangle(histImage,Point((i+bins*2)*scale,histHeight-1),
+			Point((i+bins*2+1)*scale - 1, histHeight - intensity_blue),
+			Scalar(0,0,255));
+
+	}
+
+	//在窗口中显示出绘制好的直方图
+	imshow( "图像的RGB直方图", histImage );
+	waitKey(0);
+	return 0;
+}
+
+```
+![yang](./photo/89.png)
+![yang](./photo/90.png)
+#### 4.反向投影
+
+```
+
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+using namespace cv;
+
+
+//-----------------------------------【宏定义部分】-------------------------------------------- 
+//  描述：定义一些辅助宏 
+//------------------------------------------------------------------------------------------------ 
+#define WINDOW_NAME1 "【原始图】"        //为窗口标题定义的宏 
+
+
+//-----------------------------------【全局变量声明部分】--------------------------------------
+//          描述：全局变量声明
+//-----------------------------------------------------------------------------------------------
+Mat g_srcImage; Mat g_hsvImage; Mat g_hueImage;
+int g_bins = 30;//直方图组距
+
+//-----------------------------------【全局函数声明部分】--------------------------------------
+//          描述：全局函数声明
+//-----------------------------------------------------------------------------------------------
+static void ShowHelpText();
+void on_BinChange(int, void* );
+
+//--------------------------------------【main( )函数】-----------------------------------------
+//          描述：控制台应用程序的入口函数，我们的程序从这里开始执行
+//-----------------------------------------------------------------------------------------------
+int main( )
+{
+	//【0】改变console字体颜色
+	system("color 6F"); 
+
+	//【0】显示帮助文字
+	ShowHelpText();
+
+	//【1】读取源图像，并转换到 HSV 空间
+	g_srcImage = imread( "1.jpg", 1 );
+	if(!g_srcImage.data ) { printf("读取图片错误，请确定目录下是否有imread函数指定图片存在~！ \n"); return false; } 
+	cvtColor( g_srcImage, g_hsvImage, COLOR_BGR2HSV );
+
+	//【2】分离 Hue 色调通道
+	g_hueImage.create( g_hsvImage.size(), g_hsvImage.depth() );
+	int ch[ ] = { 0, 0 };
+	mixChannels( &g_hsvImage, 1, &g_hueImage, 1, ch, 1 );
+
+	//【3】创建 Trackbar 来输入bin的数目
+	namedWindow( WINDOW_NAME1 , WINDOW_AUTOSIZE );
+	createTrackbar("色调组距 ", WINDOW_NAME1 , &g_bins, 180, on_BinChange );
+	on_BinChange(0, 0);//进行一次初始化
+
+	//【4】显示效果图
+	imshow( WINDOW_NAME1 , g_srcImage );
+
+	// 等待用户按键
+	waitKey(0);
+	return 0;
+}
+
+
+//-----------------------------------【on_HoughLines( )函数】--------------------------------
+//          描述：响应滑动条移动消息的回调函数
+//---------------------------------------------------------------------------------------------
+void on_BinChange(int, void* )
+{
+	//【1】参数准备
+	MatND hist;
+	int histSize = MAX( g_bins, 2 );
+	float hue_range[] = { 0, 180 };
+	const float* ranges = { hue_range };
+
+	//【2】计算直方图并归一化
+	calcHist( &g_hueImage, 1, 0, Mat(), hist, 1, &histSize, &ranges, true, false );
+	normalize( hist, hist, 0, 255, NORM_MINMAX, -1, Mat() );
+
+	//【3】计算反向投影
+	MatND backproj;
+	calcBackProject( &g_hueImage, 1, 0, hist, backproj, &ranges, 1, true );
+
+	//【4】显示反向投影
+	imshow( "反向投影图", backproj );
+
+	//【5】绘制直方图的参数准备
+	int w = 400; int h = 400;
+	int bin_w = cvRound( (double) w / histSize );
+	Mat histImg = Mat::zeros( w, h, CV_8UC3 );
+
+	//【6】绘制直方图
+	for( int i = 0; i < g_bins; i ++ )
+	{ rectangle( histImg, Point( i*bin_w, h ), Point( (i+1)*bin_w, h - cvRound( hist.at<float>(i)*h/255.0 ) ), Scalar( 100, 123, 255 ), -1 ); }
+
+	//【7】显示直方图窗口
+	imshow( "直方图", histImg );
+}
+
+
+//-----------------------------------【ShowHelpText( )函数】----------------------------------
+//          描述：输出一些帮助信息
+//----------------------------------------------------------------------------------------------
+static void ShowHelpText()
+{
+	//输出欢迎信息和OpenCV版本
+	printf("\n\n\t\t\t非常感谢购买《OpenCV3编程入门》一书！\n");
+	printf("\n\n\t\t\t此为本书OpenCV3版的第83个配套示例程序\n");
+	printf("\n\n\t\t\t   当前使用的OpenCV版本为：" CV_VERSION );
+	printf("\n\n  ----------------------------------------------------------------------------\n");
+
+	//输出一些帮助信息
+	printf("\n\n\t欢迎来到【反向投影】示例程序\n\n"); 
+	printf("\n\t请调整滑动条观察图像效果\n\n");
+
+}
+
+```
+
+![yang](./photo/91.png)
+![yang](./photo/92.png)
+### 笔记部分
+#### 1 图像直方图（Histogram）概述
+1.作用：
+  在每个兴趣点设置一个有相近特征的直方图所构成的标签，通过标记帧与帧之间显著的边缘、颜色、角度等特征的统计变化，来检测视频中场景的变化。
+2.概念：
+  图像直方图是图像中像素强度分布的图形表达方式，统计了每一个强度值所具有的像素个数，并将统计结果分布于一系列预定义的bins中。直方图中，横坐标的左侧为纯黑较暗区域，右侧为纯白较亮区域。
+3.术语：
+（1）dims：需要统计的特征数目
+（2）bins：每个特征空间子区段的数目，称为“直条”或“组距”
+（3）Range：每个特征空间的取值范围
+#### 2 直方图的计算与绘制
+
+1.作用：
+  计算一个或多个阵列的直方图
+2.函数原型：
+
+void calcHist(const Mat* image, int nimages, const int* channels, InputArray mask, OutputArray hist, int dims, const int* histSize, const float** ranges, bool uniform=true, bool accumulate=false)
+
+3.参数说明：
+（1）输入数组（集）
+（2）输入数组个数
+（3）需要统计的通道(dim)索引，第一个数组通道从0到images[0].channels()-1，第二个数组通道从images[0].channels()计算到images[0].channels()+images[1].channels()-1。
+（4）可选的操作掩码，为空或与images[i]同样大小的8位数组，非零掩码元素用于标记出统计直方图的数组元素数据。
+（5）输出的目标直方图，二维数组
+（6）需要计算的直方图维度，必须是正数且不大于CV_MAX_DIMS
+（7）存放每个维度的直方图尺寸的数组
+（8）表示每一个维度数组的每一维的边界阵列，即每一位数组的取值范围
+（9）指示直方图是否均匀的标识符，默认true
+（10）累计标识符，默认值false，为true时直方图在配置阶段不会被清零，主要是允许从多个阵列中计算单个直方图，或用于在特定时间更新直方图。
+#### 3.方法函数
+1. 计算直方图：calcHist()函数
+
+2. 找寻最值：minMaxLoc()函数   p348
+
+3. 对比直方图：compareHist()函数
+
+4.MatND类是用于存储直方图的一种数据结构。
+
+5. 计算反向投影：calBackProject()函数
+
+6. 通道复制：mixChannels()函数
+
+7. 模板匹配：matchTemplate()函数
+
+模板匹配是一项在一幅图像中寻找与另一幅模板图像最匹配（相似）部分的技术。
+
+模板匹配不是基于直方图的，而是通过在输入图像上滑动图像快，对实际的图像快和输入图像进行匹配的一种匹配方法。
+
+ 
