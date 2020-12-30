@@ -615,7 +615,7 @@ int main(int argc, const char** argv)
 <center>图24 彩色目标跟踪3</center>
 
 ![](Images/histogram.png)
-<center>图25 跟踪直方图</center>
+<center>图25 追踪直方图</center>
 
 ## 2.2 点追踪---lkdemo
 
