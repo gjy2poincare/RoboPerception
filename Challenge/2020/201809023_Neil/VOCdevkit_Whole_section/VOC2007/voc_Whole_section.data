@@ -1,0 +1,6 @@
+classes= 1
+train  = D:/Darknet/darknet/build/darknet/x64/VOCdevkit_Whole_section/VOC2007/2007_train.txt
+valid  = D:/Darknet/darknet/build/darknet/x64/VOCdevkit_Whole_section/VOC2007/2007_test.txt
+names = D:/Darknet/darknet/build/darknet/x64/data/voc_Whole_section.names
+backup = D:/Darknet/darknet/build/darknet/x64/VOCdevkit_Whole_section/VOC2007/backup/
+

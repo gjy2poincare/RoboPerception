@@ -1,0 +1,26 @@
+<annotation>
+	<folder>JPEGImages</folder>
+	<filename>054_1_0039.png</filename>
+	<path>C:\Users\14531\Desktop\VOC2007\JPEGImages\054_1_0039.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>107</width>
+		<height>91</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Whole_section</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>23</xmin>
+			<ymin>11</ymin>
+			<xmax>88</xmax>
+			<ymax>77</ymax>
+		</bndbox>
+	</object>
+</annotation>
