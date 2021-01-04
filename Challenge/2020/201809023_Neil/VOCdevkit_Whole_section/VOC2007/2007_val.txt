@@ -1,0 +1,3 @@
+d:\Darknet\darknet\build\darknet\x64\VOCdevkit_Whole_section\VOC2007\JPEGImages\054_0098.png
+d:\Darknet\darknet\build\darknet\x64\VOCdevkit_Whole_section\VOC2007\JPEGImages\054_0107.png
+d:\Darknet\darknet\build\darknet\x64\VOCdevkit_Whole_section\VOC2007\JPEGImages\054_1_0120.png
